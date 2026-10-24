@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>กระเป๋าเงินของฉัน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: soft lavender canvas, white floating cards, pill navigation; one gradient hero for the balance. */
+:root{
+  color-scheme:light;
+  --bg:#f5f2fb; --bg-2:#fdf1f6; --surface:#ffffff; --surface-2:#f3eff9; --line:#ebe5f4;
+  --text:#2a2440; --text-2:#6a6382; --muted:#9a93ae;
+  --brand:#7b61d9; --brand-ink:#ffffff; --brand-soft:#efe9fd;
+  --pink:#f6c5d8; --pink-soft:#fdeef4; --sky:#c9def9; --sky-soft:#eef5fe; --mint:#c3ebdb; --mint-soft:#ecf8f3; --peach:#fbd9c4; --peach-soft:#fef3ec; --lilac-soft:#f2edfd;
+  --income:#6c8ff0; --expense:#ef7fa3;
+  --good:#1f8a5b; --good-bg:#e4f6ee; --warn:#a2650b; --warn-bg:#fdf1dc; --bad:#c23b5f; --bad-bg:#fde8ee;
+  --bar:#a48ef0; --bar-track:#f1ecfa;
+  --hero:linear-gradient(135deg,#b9a6f5 0%,#e7b3d6 55%,#f7cdb9 100%); --hero-ink:#2a1f4a; --hero-pill:rgba(255,255,255,.45);
+  --shadow:0 1px 2px rgba(64,40,120,.04),0 8px 24px rgba(64,40,120,.07);
+  --shadow-lg:0 12px 32px rgba(64,40,120,.14);
+  --r:20px; --r-sm:12px;
+  --f-display:"Prompt","Noto Sans Thai","Leelawadee UI",system-ui,sans-serif;
+  --f-body:"Sarabun","Noto Sans Thai","Leelawadee UI","Tahoma",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#16131f; --bg-2:#1b1524; --surface:#211d2c; --surface-2:#2a2538; --line:#332d43;
+    --text:#f1edf9; --text-2:#bdb5d2; --muted:#8b84a1;
+    --brand:#a893f5; --brand-ink:#16131f; --brand-soft:#2e2647;
+    --pink:#5a3346; --pink-soft:#33222c; --sky:#2c3d5a; --sky-soft:#1f2635; --mint:#264538; --mint-soft:#1c2a25; --peach:#56392a; --peach-soft:#2e231d; --lilac-soft:#2a2440;
+    --income:#6a8cf0; --expense:#d8628b;
+    --good:#6fd3a3; --good-bg:#1c3328; --warn:#f0bf62; --warn-bg:#382c14; --bad:#f58aa8; --bad-bg:#3d1d29;
+    --bar:#9a82f0; --bar-track:#2c2640;
+    --hero:linear-gradient(135deg,#4b3c8c 0%,#7a3f6c 60%,#8a5240 100%); --hero-ink:#fbf7ff; --hero-pill:rgba(255,255,255,.13);
+    --shadow:0 1px 2px rgba(0,0,0,.3); --shadow-lg:0 12px 32px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#16131f; --bg-2:#1b1524; --surface:#211d2c; --surface-2:#2a2538; --line:#332d43;
+    --text:#f1edf9; --text-2:#bdb5d2; --muted:#8b84a1;
+    --brand:#a893f5; --brand-ink:#16131f; --brand-soft:#2e2647;
+    --pink:#5a3346; --pink-soft:#33222c; --sky:#2c3d5a; --sky-soft:#1f2635; --mint:#264538; --mint-soft:#1c2a25; --peach:#56392a; --peach-soft:#2e231d; --lilac-soft:#2a2440;
+    --income:#6a8cf0; --expense:#d8628b;
+    --good:#6fd3a3; --good-bg:#1c3328; --warn:#f0bf62; --warn-bg:#382c14; --bad:#f58aa8; --bad-bg:#3d1d29;
+    --bar:#9a82f0; --bar-track:#2c2640;
+    --hero:linear-gradient(135deg,#4b3c8c 0%,#7a3f6c 60%,#8a5240 100%); --hero-ink:#fbf7ff; --hero-pill:rgba(255,255,255,.13);
+    --shadow:0 1px 2px rgba(0,0,0,.3); --shadow-lg:0 12px 32px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);background-image:radial-gradient(900px 500px at 100% -10%,var(--bg-2),transparent 60%);background-attachment:fixed;color:var(--text);font-family:var(--f-body);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+.hidden{display:none!important}
+.num{font-variant-numeric:tabular-nums}
+a{color:var(--brand)}
+h1,h2,h3,h4,.logo,.kpi .val,.hero-bal,.wcard .wb{font-family:var(--f-display);text-wrap:balance}
+:focus-visible{outline:3px solid var(--brand-soft);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.btn,.card,.wcard,.opt,nav.tabs button,.chips button,.tipc{transition:background .18s,box-shadow .18s,transform .18s,color .18s,border-color .18s}}
+
+/* ---------- auth ---------- */
+#auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:radial-gradient(420px 320px at 15% 15%,var(--pink-soft),transparent 70%),radial-gradient(460px 360px at 85% 80%,var(--sky-soft),transparent 70%),radial-gradient(380px 300px at 80% 10%,var(--lilac-soft),transparent 70%)}
+.auth-card{width:100%;max-width:410px;background:var(--surface);border-radius:28px;padding:30px 26px;box-shadow:var(--shadow-lg)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:21px;letter-spacing:-.01em}
+.logo-mark{width:42px;height:42px;border-radius:14px;background:var(--hero);color:var(--hero-ink);display:grid;place-items:center;font-size:21px;font-weight:600;box-shadow:0 6px 16px color-mix(in srgb,var(--brand) 25%,transparent)}
+.auth-tabs{display:flex;gap:4px;background:var(--surface-2);border-radius:999px;padding:4px;margin:22px 0 18px}
+.auth-tabs button{flex:1;border:0;background:transparent;padding:9px;border-radius:999px;cursor:pointer;color:var(--text-2)}
+.auth-tabs button.on{background:var(--surface);color:var(--brand);font-weight:600;box-shadow:var(--shadow)}
+.note{font-size:13px;color:var(--muted)}
+
+/* ---------- forms ---------- */
+label.f{display:block;margin:0 0 14px}
+label.f>span{display:block;font-size:13px;color:var(--text-2);margin-bottom:5px;font-weight:500}
+input[type=text],input[type=password],input[type=number],input[type=date],input[type=month],select,textarea{width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+textarea{min-height:80px;resize:vertical}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;background:var(--surface-2);padding:10px 16px;border-radius:999px;cursor:pointer;font-weight:500;white-space:nowrap;color:var(--text)}
+.btn:hover{background:var(--brand-soft);color:var(--brand)}
+.btn.pri{background:var(--brand);color:var(--brand-ink);box-shadow:0 6px 16px color-mix(in srgb,var(--brand) 30%,transparent)}
+.btn.pri:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.btn.danger{background:var(--bad-bg);color:var(--bad)}
+.btn.sm{padding:6px 12px;font-size:13.5px}
+.btn.block{width:100%;padding:12px}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.err{color:var(--bad);font-size:13.5px;min-height:20px;margin:4px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+
+/* ---------- app shell ---------- */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.top-in{max-width:1180px;margin:0 auto;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:center;gap:14px}
+nav.tabs{display:flex;gap:2px;flex:1;overflow-x:auto;background:var(--surface);border-radius:999px;padding:5px;box-shadow:var(--shadow);margin:0 auto;max-width:max-content}
+nav.tabs button{border:0;background:transparent;padding:8px 14px;border-radius:999px;cursor:pointer;color:var(--text-2);white-space:nowrap;font-weight:500}
+nav.tabs button:hover{color:var(--brand)}
+nav.tabs button.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.user-chip{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-2)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--pink);display:grid;place-items:center;font-weight:600;color:var(--text);font-family:var(--f-display)}
+main{max-width:1180px;margin:0 auto;padding-top:14px;padding-bottom:120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1.pg{font-size:26px;margin:0 0 2px;font-weight:600;letter-spacing:-.01em}
+.sub{color:var(--text-2);margin:0 0 18px;font-size:14.5px}
+.card{background:var(--surface);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 12px;font-size:16.5px;font-weight:600}
+.cards{display:grid;gap:16px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.kpi{display:flex;gap:12px;align-items:center;padding:16px}
+.kpi .kic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:20px;flex:none}
+.kpi .lbl{font-size:13px;color:var(--text-2)}
+.kpi .val{font-size:20px;font-weight:600;line-height:1.25}
+.kpi .hint{font-size:12px;color:var(--muted)}
+.dash{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
+@media (max-width:980px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.dash{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:420px){.kpi{padding:12px;gap:9px}.kpi .kic{width:36px;height:36px;font-size:17px;border-radius:11px}.kpi .val{font-size:16.5px}}
+.hero{background:var(--hero);color:var(--hero-ink);border-radius:26px;padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.18)}
+.hero .hl{font-size:14px;opacity:.85}
+.hero-bal{font-size:38px;font-weight:600;letter-spacing:-.02em;line-height:1.2;margin:2px 0 14px}
+.hero .hrow{display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1}
+.hero .hp{background:var(--hero-pill);border-radius:14px;padding:8px 14px;min-width:120px}
+.hero .hp small{display:block;font-size:12px;opacity:.85}
+.hero .hp b{font-family:var(--f-display);font-weight:600;font-size:16px}
+@media (max-width:420px){.hero-bal{font-size:30px}.hero{padding:20px}}
+.monthbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.monthbar .m{font-weight:600;min-width:130px;text-align:center;font-family:var(--f-display)}
+.monthbar .btn.sm{width:34px;height:34px;padding:0;background:var(--surface);box-shadow:var(--shadow)}
+.monthbar .btn.sm.wide{width:auto;padding:0 12px}
+
+/* bottom nav on mobile: floating pill */
+@media (max-width:760px){
+  nav.tabs{position:fixed;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));max-width:none;justify-content:space-around;z-index:30;box-shadow:var(--shadow-lg);padding:6px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:24px}
+  nav.tabs button{display:flex;flex-direction:column;align-items:center;font-size:11px;padding:6px 4px;gap:1px;border-radius:16px;flex:1}
+  .top-in{justify-content:space-between}
+  header.top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
+  .fab{bottom:calc(92px + env(safe-area-inset-bottom,0px))!important}
+  .hide-sm{display:none}
+}
+nav.tabs .ic{font-size:17px}
+@media (min-width:761px){nav.tabs .ic{margin-right:5px}}
+
+.fab{position:fixed;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(26px + env(safe-area-inset-bottom,0px));width:60px;height:60px;border-radius:20px;border:0;background:var(--brand);color:var(--brand-ink);font-size:30px;line-height:1;cursor:pointer;box-shadow:0 10px 24px color-mix(in srgb,var(--brand) 40%,transparent);z-index:25}
+.fab:hover{transform:translateY(-2px) rotate(90deg)}
+
+/* lists */
+.list{display:flex;flex-direction:column}
+.li{display:flex;align-items:center;gap:12px;padding:11px 6px;border-radius:14px}
+.li[data-act]:hover{background:var(--surface-2)}
+.li+.li{border-top:1px solid var(--line)}
+.li .ico{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--surface-2);font-size:19px;flex:none}
+.li .mid{flex:1;min-width:0}
+.li .t1{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .t2{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .amt{font-weight:600;text-align:right;white-space:nowrap;font-family:var(--f-display)}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.day-h{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:16px 6px 6px;font-weight:600;letter-spacing:.02em}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:14px}
+@media (max-width:760px){.filters{grid-template-columns:1fr 1fr}}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 10px;border-radius:999px;background:var(--surface-2);color:var(--text-2)}
+.status{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:3px 11px;border-radius:999px;white-space:nowrap}
+.status.good{background:var(--good-bg);color:var(--good)}
+.status.warn{background:var(--warn-bg);color:var(--warn)}
+.status.bad{background:var(--bad-bg);color:var(--bad)}
+
+/* wallets: pastel cards, dark ink */
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.wcard{border-radius:24px;padding:18px;color:#2a2440;position:relative;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow);overflow:hidden}
+.wcard::after{content:"";position:absolute;right:-40px;bottom:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.35)}
+.wcard>*{position:relative;z-index:1}
+.wcard .wn{font-weight:600;font-size:16px;display:flex;gap:8px;align-items:center}
+.wcard .wt{font-size:12.5px;opacity:.7}
+.wcard .wb{font-size:25px;font-weight:600;letter-spacing:-.01em}
+.wcard .wact{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.wcard .wact button{background:rgba(255,255,255,.6);border:0;color:#2a2440;padding:5px 12px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:500}
+.wcard .wact button:hover{background:#fff}
+.wcard:hover{transform:translateY(-2px)}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.swatches button{width:34px;height:34px;border-radius:12px;border:3px solid transparent;cursor:pointer}
+.swatches button.on{border-color:var(--brand)}
+.accents{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.accents button{border:2px solid transparent;background:var(--surface-2);border-radius:14px;padding:8px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--text-2)}
+.accents button i{width:28px;height:28px;border-radius:50%;display:block}
+.accents button.on{border-color:var(--brand);color:var(--text);font-weight:600}
+.birth-res{background:var(--brand-soft);color:var(--text);border-radius:14px;padding:10px 14px;margin:0 0 12px;font-size:14px}
+
+/* bars */
+.hbar{display:grid;grid-template-columns:minmax(90px,150px) 1fr auto;gap:12px;align-items:center;padding:6px 0;cursor:default}
+.hbar .nm{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar .tr{height:12px;background:var(--bar-track);border-radius:999px;overflow:hidden}
+.hbar .fl{height:100%;background:var(--bar);border-radius:999px}
+.hbar .v{font-size:13px;color:var(--text-2);min-width:86px;text-align:right}
+.hbar:hover .fl{filter:brightness(1.08)}
+.budget .tr{height:10px}
+.budget .fl.over{background:var(--bad)}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--text-2);margin-bottom:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+#tt{position:fixed;pointer-events:none;background:var(--text);color:var(--bg);font-size:13px;padding:8px 12px;border-radius:12px;z-index:100;max-width:250px;line-height:1.5;box-shadow:var(--shadow-lg)}
+
+/* tips */
+.tip-hero{background:linear-gradient(135deg,var(--lilac-soft),var(--pink-soft));border-radius:var(--r);padding:20px;position:relative;overflow:hidden}
+.tip-hero .tag{font-size:12.5px;color:var(--brand);font-weight:600}
+.tip-hero h2{margin:6px 0 6px;font-size:19px;font-weight:600}
+.tip-hero p{margin:0;color:var(--text-2)}
+.tip-hero .btn.sm{background:var(--surface)}
+.tipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.tipc{background:var(--surface);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow)}
+.tipc:hover{transform:translateY(-2px)}
+.tipc h4{margin:0;font-size:15.5px;font-weight:600}
+.tipc p{margin:0;font-size:14px;color:var(--text-2);flex:1}
+.tipc .ft{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.star{border:0;background:none;cursor:pointer;font-size:19px;color:var(--muted)}
+.star.on{color:#e6a817}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chips button{border:0;background:var(--surface);border-radius:999px;padding:7px 14px;cursor:pointer;font-size:13.5px;box-shadow:var(--shadow);color:var(--text-2)}
+.chips button.on{background:var(--brand);color:var(--brand-ink)}
+
+/* quiz */
+.q{margin-bottom:18px}
+.q .qt{font-weight:600;margin-bottom:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border:1.5px solid var(--line);border-radius:14px;margin-bottom:7px;cursor:pointer;background:var(--surface)}
+.opt:hover{border-color:var(--brand);background:var(--lilac-soft)}
+.opt:has(input:checked){border-color:var(--brand);background:var(--brand-soft)}
+.opt input{margin-top:5px;accent-color:var(--brand)}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.score-ring{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(30,20,50,.38);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+@media (min-width:600px){.modal-bg{align-items:center}}
+.modal{background:var(--surface);width:100%;max-width:480px;border-radius:28px 28px 0 0;padding:22px 22px calc(22px + env(safe-area-inset-bottom,0px));max-height:92vh;overflow:auto;box-shadow:var(--shadow-lg)}
+@media (min-width:600px){.modal{border-radius:28px}}
+.modal h3{margin:0 0 16px;font-size:19px;font-weight:600}
+.seg{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:999px;margin-bottom:14px}
+.seg button{flex:1;border:0;background:transparent;padding:9px 6px;border-radius:999px;cursor:pointer;color:var(--text-2);font-size:14px}
+.seg button.on{background:var(--surface);font-weight:600;box-shadow:var(--shadow);color:var(--brand)}
+.seg button.on.inc{color:var(--good)} .seg button.on.exp{color:var(--bad)}
+.amt-in{font-size:28px!important;font-weight:600;font-family:var(--f-display);text-align:center;padding:14px!important}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);padding:11px 18px;border-radius:999px;z-index:120;font-size:14px;box-shadow:var(--shadow-lg);max-width:90vw;text-align:center}
+.banner{background:var(--warn-bg);color:var(--warn);padding:8px 16px;font-size:13.5px;text-align:center}
+.tbl-wrap{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th,table.t td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line)}
+table.t th{font-size:12.5px;color:var(--muted);font-weight:600}
+table.t td.r,table.t th.r{text-align:right}
+table.t input{border-radius:10px}
+.section-gap{height:16px}
+</style>
+</head>
+<body>
+<div id="storeBanner" class="banner hidden">⚠ เบราว์เซอร์นี้ไม่อนุญาตให้บันทึกข้อมูลถาวร — ข้อมูลจะหายเมื่อปิดหน้า กรุณาเปิดไฟล์นี้ด้วย Chrome/Edge โดยตรง</div>
+
+<!-- ============ AUTH ============ -->
+<section id="auth">
+  <div class="auth-card">
+    <div class="logo"><div class="logo-mark">฿</div>กระเป๋าเงินของฉัน</div>
+    <p class="note" style="margin:6px 0 0">บันทึกรายรับรายจ่าย · แยกกระเป๋าเงิน · ประเมินสุขภาพการเงิน</p>
+    <div class="auth-tabs"><button id="tabLogin" class="on">เข้าสู่ระบบ</button><button id="tabReg">สร้างบัญชีใหม่</button></div>
+    <form id="fLogin" autocomplete="on">
+      <label class="f"><span>ชื่อผู้ใช้</span><input type="text" id="lUser" autocomplete="username" required></label>
+      <label class="f"><span>รหัสผ่าน</span><input type="password" id="lPass" autocomplete="current-password" required></label>
+      <div class="err" id="lErr"></div>
+      <button class="btn pri block" type="submit" id="lBtn">เข้าสู่ระบบ</button>
+      <p class="note" style="margin-top:14px">มีไฟล์สำรองข้อมูล? <a href="#" id="lnkRestore">กู้คืนจากไฟล์สำรอง</a></p>
+    </form>
+    <form id="fReg" class="hidden" autocomplete="off">
+      <label class="f"><span>ชื่อผู้ใช้ (ภาษาอังกฤษ/ตัวเลข 3–20 ตัว)</span><input type="text" id="rUser" autocomplete="username" required></label>
+      <label class="f"><span>ชื่อที่แสดง</span><input type="text" id="rName" placeholder="เช่น คุณเอ"></label>
+      <label class="f"><span>รหัสผ่าน (อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข)</span><input type="password" id="rPass" autocomplete="new-password" required></label>
+      <label class="f"><span>ยืนยันรหัสผ่าน</span><input type="password" id="rPass2" autocomplete="new-password" required></label>
+      <div class="err" id="rErr"></div>
+      <button class="btn pri block" type="submit" id="rBtn">สร้างบัญชี</button>
+      <p class="note" style="margin-top:14px">🔒 ข้อมูลทั้งหมดถูกเข้ารหัสด้วยรหัสผ่านของคุณ (AES-256) ก่อนจัดเก็บ ไม่มีใครอ่านได้นอกจากคุณ <b>หากลืมรหัสผ่านจะกู้ข้อมูลไม่ได้</b></p>
+    </form>
+    <p class="note hidden" id="cloudNote" style="margin-top:10px">☁ เชื่อมกับพื้นที่ส่วนตัวในบัญชี claude.ai ของคุณแล้ว — เปิดลิงก์นี้จากเครื่องอื่นก็เข้าสู่ระบบได้</p>
+    <input type="file" id="restoreFile" accept=".json,application/json" class="hidden">
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<section id="app" class="hidden">
+  <header class="top"><div class="top-in">
+    <div class="logo" style="font-size:17px"><div class="logo-mark" style="width:36px;height:36px;font-size:18px;border-radius:12px">฿</div><span class="hide-sm">กระเป๋าเงินของฉัน</span></div>
+    <nav class="tabs" id="nav">
+      <button data-v="dash"><span class="ic">📊</span>แดชบอร์ด</button>
+      <button data-v="tx"><span class="ic">🧾</span>รายการ</button>
+      <button data-v="wallets"><span class="ic">👛</span>กระเป๋า</button>
+      <button data-v="tips"><span class="ic">💡</span>ความรู้</button>
+      <button data-v="health"><span class="ic">🩺</span>ประเมิน</button>
+      <button data-v="settings"><span class="ic">⚙️</span>ตั้งค่า</button>
+    </nav>
+    <div class="user-chip"><span class="avatar" id="avatar"></span><span id="whoami" class="hide-sm"></span><button class="btn sm" id="btnLock" title="ออกจากระบบ">🔒 ออก</button></div>
+  </div></header>
+  <main id="view"></main>
+  <button class="fab" id="fab" title="เพิ่มรายการ">+</button>
+</section>
+
+<div id="tt" class="hidden"></div>
+<div id="modalRoot"></div>
+<script>
+"use strict";
+/* ===================== CONSTANT DATA ===================== */
+const WALLET_TYPES = {cash:"เงินสด", bank:"บัญชีธนาคาร", ewallet:"e-Wallet", saving:"เงินออม/ฉุกเฉิน", invest:"การลงทุน", credit:"บัตรเครดิต"};
+const LIQUID_TYPES = ["cash","bank","ewallet","saving"];
+const WALLET_COLORS = ["#cdbdf7","#bfe8d6","#f8c6d9","#bfdcf8","#fbd5bd","#f5e3a3","#c6ebee","#f2c4c4","#dde6c0","#dcd3f2"];
+const OLD_COLORS = ["#2a78d6","#1baf7a","#eb6834","#6250d6","#e34948","#008300","#c98500","#d55181","#3a3a38","#104281"];
+const wColor = c => { const i = OLD_COLORS.indexOf(c); return i >= 0 ? WALLET_COLORS[[3,1,4,0,7,8,5,2,9,6][i]] : (c || WALLET_COLORS[0]); };
+const WALLET_ICONS = ["💵","🏦","📱","🐷","📈","💳","👛","🎯","🏠","✈️"];
+
+const DEFAULT_CATS = {
+  income:[
+    ["salary","เงินเดือน","💼"],["bonus","โบนัส","🎁"],["ot","ค่าล่วงเวลา (OT)","⏱️"],["side","รายได้เสริม/ธุรกิจ","🛍️"],
+    ["interest","ดอกเบี้ย/ปันผล","📈"],["gift","เงินที่ได้รับ","🤝"],["inc_other","รายรับอื่น ๆ","➕"]
+  ],
+  expense:[
+    ["food","อาหาร/เครื่องดื่ม","🍜"],["transport","เดินทาง/น้ำมัน","🚗"],["housing","ที่พัก/ค่าเช่า","🏠"],["utility","น้ำ ไฟ","💡"],
+    ["phone","โทรศัพท์/อินเทอร์เน็ต","📶"],["shopping","ช้อปปิ้ง/ของใช้","🛒"],["health","สุขภาพ/ยา","💊"],["edu","การศึกษา","📚"],
+    ["fun","บันเทิง/ท่องเที่ยว","🎬"],["insurance","เบี้ยประกัน","🛡️"],["debt","ผ่อนชำระหนี้","🧾","debt"],["save","ออม/ลงทุน","🐷","save"],
+    ["family","ครอบครัว/ส่งเงินบ้าน","👨‍👩‍👧"],["merit","ทำบุญ/บริจาค","🙏"],["exp_other","รายจ่ายอื่น ๆ","➖"]
+  ]
+};
+
+const TIP_CATS = ["การออม","หนี้สิน","การลงทุน","ภาษี","ประกัน","เกษียณ","วางแผน","ภัยการเงิน"];
+const TIPS = [
+ ["การออม","ออมก่อนใช้","เมื่อเงินเดือนออก ให้โอนเงินออมแยกไปอีกบัญชีทันที แล้วค่อยใช้ส่วนที่เหลือ วิธีนี้ได้ผลกว่า 'ใช้ก่อนแล้วเหลือค่อยออม' เพราะมักไม่เหลือ"],
+ ["การออม","เงินสำรองฉุกเฉิน 3–6 เดือน","ควรมีเงินสำรองฉุกเฉินเท่ากับค่าใช้จ่ายจำเป็น 3–6 เดือน เก็บในที่ถอนได้ทันทีและไม่ผันผวน เช่น บัญชีออมทรัพย์ หรือกองทุนรวมตลาดเงิน ถ้ารายได้ไม่แน่นอนให้เผื่อมากกว่า 6 เดือน"],
+ ["การออม","กฎ 50/30/20","แบ่งรายได้หลังหักภาษี: 50% ค่าใช้จ่ายจำเป็น, 30% สิ่งที่อยากได้, 20% ออม/ชำระหนี้ เป็นจุดเริ่มต้นที่ดี ปรับสัดส่วนได้ตามสถานการณ์จริง"],
+ ["การออม","ตั้งออมอัตโนมัติ","ใช้ฟังก์ชันโอนเงินอัตโนมัติ (ตั้งโอนล่วงหน้า) ในวันเงินเดือนออก ลดการพึ่งพาวินัยส่วนตัว และทำให้การออมเกิดขึ้นสม่ำเสมอ"],
+ ["การออม","แยกบัญชีตามเป้าหมาย","แยกกระเป๋าเงินตามเป้าหมาย เช่น ฉุกเฉิน ท่องเที่ยว ซื้อบ้าน จะเห็นความคืบหน้าชัด และลดการเผลอเอาเงินเป้าหมายหนึ่งไปใช้อีกเรื่อง"],
+ ["การออม","กฎ 24 ชั่วโมง","ของที่ไม่จำเป็นและราคาสูง ให้รอ 24 ชั่วโมง (หรือ 30 วันสำหรับของแพงมาก) ก่อนตัดสินใจซื้อ ช่วยลดการซื้อตามอารมณ์ได้มาก"],
+ ["การออม","ค่าใช้จ่ายเล็ก ๆ รวมแล้วไม่เล็ก","กาแฟวันละ 60 บาท × 22 วันทำงาน ≈ 1,320 บาท/เดือน หรือ ≈ 15,840 บาท/ปี ลองบันทึกรายจ่ายเล็ก ๆ 1 เดือนแล้วดูยอดรวม"],
+ ["การออม","ทบทวนค่าสมาชิกรายเดือน","สำรวจ subscription เช่น สตรีมมิ่ง แอป ฟิตเนส ทุก 3 เดือน ยกเลิกสิ่งที่ไม่ได้ใช้ เป็นการลดรายจ่ายประจำที่ง่ายที่สุด"],
+ ["การออม","ดอกเบี้ยเงินฝากกับเงินเฟ้อ","ถ้าดอกเบี้ยเงินฝากต่ำกว่าอัตราเงินเฟ้อ อำนาจซื้อของเงินจะลดลง เงินที่ไม่ต้องใช้ในระยะยาวจึงควรพิจารณาลงทุนตามระดับความเสี่ยงที่รับได้"],
+ ["การออม","คุ้มครองเงินฝาก","สถาบันคุ้มครองเงินฝาก (สคฝ.) คุ้มครองเงินฝากสูงสุด 1 ล้านบาท ต่อผู้ฝาก 1 ราย ต่อ 1 สถาบันการเงิน (ตรวจสอบประเภทบัญชีที่คุ้มครองได้ที่ สคฝ.)"],
+ ["หนี้สิน","ภาระหนี้ไม่ควรเกิน ~40% ของรายได้","แนวทางทั่วไป ค่าผ่อนหนี้ทุกประเภทรวมกันไม่ควรเกินประมาณ 35–40% ของรายได้ต่อเดือน เกินกว่านี้จะเริ่มกระทบสภาพคล่องและการออม"],
+ ["หนี้สิน","จ่ายบัตรเครดิตเต็มจำนวน","จ่ายยอดบัตรเครดิตเต็มจำนวนทุกเดือนเพื่อไม่เสียดอกเบี้ย การจ่ายขั้นต่ำทำให้ยอดที่เหลือถูกคิดดอกเบี้ยย้อนหลังตั้งแต่วันที่ทำรายการ"],
+ ["หนี้สิน","ปิดหนี้แบบ Avalanche","เรียงหนี้จากดอกเบี้ยสูงไปต่ำ จ่ายขั้นต่ำทุกก้อน แล้วโปะก้อนที่ดอกเบี้ยสูงสุดก่อน วิธีนี้ประหยัดดอกเบี้ยรวมได้มากที่สุด"],
+ ["หนี้สิน","ปิดหนี้แบบ Snowball","เรียงหนี้จากยอดน้อยไปมาก ปิดก้อนเล็กก่อนเพื่อสร้างกำลังใจ เหมาะกับคนที่ต้องการเห็นผลเร็ว แม้อาจเสียดอกเบี้ยรวมมากกว่า Avalanche เล็กน้อย"],
+ ["หนี้สิน","หนี้ดี vs หนี้เสีย","หนี้ที่ช่วยสร้างรายได้หรือทรัพย์สินที่มูลค่าไม่ลดลงเร็ว (เช่น บ้านอยู่อาศัยในราคาที่ไหว) ต่างจากหนี้เพื่อการบริโภค (เช่น ผ่อนของฟุ่มเฟือย) ซึ่งควรหลีกเลี่ยง"],
+ ["หนี้สิน","ข้อมูลเครดิตบูโร","ประวัติการชำระหนี้ถูกบันทึกที่บริษัทข้อมูลเครดิตแห่งชาติ (เครดิตบูโร) การชำระตรงเวลาช่วยให้ขอสินเชื่อในอนาคตได้ง่ายและดอกเบี้ยดีขึ้น สามารถขอตรวจข้อมูลของตนเองได้"],
+ ["หนี้สิน","ติดต่อเจ้าหนี้ก่อนผิดนัด","หากเริ่มผ่อนไม่ไหว ให้ติดต่อสถาบันการเงินเพื่อขอปรับโครงสร้างหนี้ก่อนค้างชำระ จะมีทางเลือกมากกว่าการรอจนเป็นหนี้เสีย"],
+ ["หนี้สิน","ระวังหนี้นอกระบบ","หนี้นอกระบบมักคิดดอกเบี้ยสูงมากและมีการทวงถามที่ผิดกฎหมาย หากจำเป็นควรหาแหล่งเงินในระบบ เช่น สถาบันการเงิน หรือสหกรณ์ออมทรัพย์"],
+ ["หนี้สิน","รีไฟแนนซ์บ้าน","สัญญาเงินกู้บ้านส่วนใหญ่มีอัตราดอกเบี้ยพิเศษช่วงแรกแล้วปรับขึ้น ควรเปรียบเทียบรีไฟแนนซ์เมื่อพ้นช่วงค่าปรับไถ่ถอน (มักราว 3 ปี) โดยคำนวณค่าธรรมเนียมรวมด้วย"],
+ ["การลงทุน","ผลตอบแทนมาพร้อมความเสี่ยง","สินทรัพย์ที่คาดหวังผลตอบแทนสูงมักมีความผันผวนสูง ควรเลือกลงทุนให้สอดคล้องกับระยะเวลาและระดับความเสี่ยงที่ตนรับได้"],
+ ["การลงทุน","กระจายความเสี่ยง","ไม่ลงทุนทั้งหมดในสินทรัพย์เดียว การกระจายไปหลายประเภท/หลายอุตสาหกรรม/หลายประเทศ ช่วยลดความเสี่ยงเฉพาะตัวของหลักทรัพย์ได้"],
+ ["การลงทุน","DCA ลงทุนสม่ำเสมอ","Dollar-Cost Averaging คือการลงทุนจำนวนเงินเท่ากันทุกงวด ลดความเสี่ยงจากการเข้าซื้อผิดจังหวะ เหมาะกับผู้ที่มีรายได้ประจำ"],
+ ["การลงทุน","กฎ 72","72 ÷ อัตราผลตอบแทนต่อปี (%) ≈ จำนวนปีที่เงินจะเพิ่มเป็น 2 เท่า เช่น ผลตอบแทน 6%/ปี ≈ 12 ปี (เป็นการประมาณ)"],
+ ["การลงทุน","พลังของดอกเบี้ยทบต้น","เริ่มเร็วสำคัญกว่าเริ่มเยอะ เพราะผลตอบแทนจะงอกผลตอบแทนต่อ ยิ่งระยะเวลายาว ผลของการทบต้นยิ่งมาก"],
+ ["การลงทุน","ค่าธรรมเนียมกินผลตอบแทน","ค่าธรรมเนียมต่างกัน 1% ต่อปี ในระยะยาว 20–30 ปี ทำให้เงินปลายทางต่างกันมาก ควรดูค่าธรรมเนียมรวม (TER) ของกองทุนก่อนตัดสินใจ"],
+ ["การลงทุน","อ่าน Fund Fact Sheet","ก่อนซื้อกองทุนรวม อ่านหนังสือชี้ชวนส่วนสรุป (Fund Fact Sheet) ดูนโยบายการลงทุน ระดับความเสี่ยง (1–8) ค่าธรรมเนียม และผลการดำเนินงานย้อนหลัง"],
+ ["การลงทุน","ผลตอบแทนอดีตไม่รับประกันอนาคต","ผลการดำเนินงานในอดีตเป็นเพียงข้อมูลประกอบ ไม่ได้ยืนยันผลตอบแทนในอนาคต อย่าเลือกกองทุนจากผลตอบแทนปีล่าสุดเพียงอย่างเดียว"],
+ ["การลงทุน","จัดพอร์ตตามเป้าหมาย","เงินที่ต้องใช้ใน 1–3 ปี ไม่ควรอยู่ในสินทรัพย์ผันผวนสูงอย่างหุ้น ส่วนเงินระยะยาว 10 ปีขึ้นไปรับความผันผวนได้มากกว่า"],
+ ["การลงทุน","Rebalance ปีละครั้ง","เมื่อสัดส่วนพอร์ตเบี่ยงจากแผน (เช่น หุ้นขึ้นจนเกินสัดส่วน) ให้ปรับกลับปีละ 1 ครั้ง ช่วยรักษาระดับความเสี่ยงให้คงที่"],
+ ["การลงทุน","ลงทุนในสิ่งที่เข้าใจ","ถ้าอธิบายไม่ได้ว่าผลตอบแทนมาจากไหนและความเสี่ยงคืออะไร ไม่ควรลงทุนในสิ่งนั้น"],
+ ["ภาษี","เก็บหลักฐานลดหย่อน","เก็บเอกสารค่าลดหย่อนไว้ตลอดปี เช่น หนังสือรับรองเบี้ยประกัน กองทุน ดอกเบี้ยบ้าน และตรวจสอบรายการ/เพดานลดหย่อนของปีภาษีนั้นจากกรมสรรพากรทุกปี เพราะเงื่อนไขอาจเปลี่ยน"],
+ ["ภาษี","ลดหย่อนผ่านกองทุนต้องถือให้ครบเงื่อนไข","กองทุนลดหย่อนภาษี (เช่น RMF, SSF, Thai ESG) มีเงื่อนไขการถือครอง หากขายก่อนครบเงื่อนไขต้องคืนภาษีที่ได้ลดหย่อนพร้อมเงินเพิ่ม ตรวจสอบเงื่อนไขล่าสุดก่อนซื้อ"],
+ ["ภาษี","วางแผนภาษีตั้งแต่ต้นปี","ประมาณรายได้ทั้งปีตั้งแต่ต้นปี แล้วทยอยใช้สิทธิลดหย่อน ดีกว่ารีบซื้อปลายปีจนกระทบสภาพคล่อง"],
+ ["ภาษี","ดอกเบี้ยออมทรัพย์","ดอกเบี้ยเงินฝากออมทรัพย์รวมทุกบัญชีไม่เกิน 20,000 บาทต่อปี ได้รับยกเว้นภาษี (ตามเงื่อนไขของกรมสรรพากร) หากเกินจะถูกหักภาษี ณ ที่จ่าย"],
+ ["ภาษี","ยื่นภาษีให้ทันเวลา","ยื่นแบบแสดงรายการภาษีเงินได้บุคคลธรรมดาให้ทันกำหนด (ปกติภายในสิ้นมีนาคมของปีถัดไป และยื่นออนไลน์ได้ขยายเวลาตามประกาศแต่ละปี) เพื่อเลี่ยงเงินเพิ่มและค่าปรับ"],
+ ["ประกัน","ประกันคือการโอนความเสี่ยง","ประกันมีไว้คุ้มครองความเสียหายก้อนใหญ่ที่เราจ่ายเองไม่ไหว ควรเลือกจากความคุ้มครองที่จำเป็นก่อน ไม่ใช่จากผลตอบแทน"],
+ ["ประกัน","รู้สิทธิสวัสดิการที่มีอยู่","ตรวจสอบสิทธิประกันสังคม สวัสดิการบริษัท หรือสิทธิรักษาพยาบาลที่มีอยู่ก่อน แล้วค่อยซื้อประกันเพิ่มเฉพาะส่วนที่ขาด"],
+ ["ประกัน","ทุนประกันชีวิตเพื่อคนข้างหลัง","ถ้ามีคนที่พึ่งพารายได้เรา ทุนประกันชีวิตควรพอครอบคลุมหนี้คงค้าง + ค่าใช้จ่ายของครอบครัวช่วงเวลาหนึ่ง ถ้าไม่มีผู้พึ่งพิงอาจไม่จำเป็นต้องมีทุนสูง"],
+ ["ประกัน","อ่านข้อยกเว้นในกรมธรรม์","ก่อนเซ็น ให้อ่านข้อยกเว้นความคุ้มครอง ระยะเวลารอคอย และเงื่อนไขการต่ออายุ โดยเฉพาะประกันสุขภาพ"],
+ ["ประกัน","แถลงสุขภาพตามจริง","การแถลงข้อมูลสุขภาพไม่ครบถ้วนอาจทำให้บริษัทประกันปฏิเสธการจ่ายสินไหมได้ ควรแถลงตามจริงทุกครั้ง"],
+ ["เกษียณ","คำนวณเงินที่ต้องใช้หลังเกษียณ","ประมาณการค่าใช้จ่ายต่อเดือนหลังเกษียณ × 12 × จำนวนปีที่คาดว่าจะใช้ แล้วปรับด้วยเงินเฟ้อ จะได้เป้าหมายเบื้องต้น (เป็นการประมาณ ควรทบทวนทุกปี)"],
+ ["เกษียณ","เริ่มเร็วออมน้อยกว่า","คนที่เริ่มออมเพื่อเกษียณตั้งแต่อายุ 25 ต้องออมต่อเดือนน้อยกว่าคนเริ่มตอนอายุ 40 มาก เพราะมีเวลาทบต้นยาวกว่า"],
+ ["เกษียณ","ใช้กองทุนสำรองเลี้ยงชีพให้คุ้ม","ถ้าบริษัทมีกองทุนสำรองเลี้ยงชีพ การสะสมในอัตราที่ได้เงินสมทบจากนายจ้างเต็มที่ เปรียบเหมือนได้ผลตอบแทนเพิ่มทันที และเลือกนโยบายลงทุนให้เหมาะกับอายุ"],
+ ["เกษียณ","อย่าลืมค่ารักษาพยาบาลยามชรา","ค่าใช้จ่ายด้านสุขภาพมักสูงขึ้นตามอายุ ควรรวมไว้ในแผนเกษียณ และวางแผนความคุ้มครองสุขภาพระยะยาว"],
+ ["วางแผน","จดบันทึกอย่างน้อย 3 เดือน","บันทึกรายรับรายจ่ายต่อเนื่องอย่างน้อย 3 เดือน จะเห็นพฤติกรรมการใช้เงินที่แท้จริง และตั้งงบประมาณได้แม่นยำขึ้น"],
+ ["วางแผน","ตั้งเป้าหมายแบบ SMART","เป้าหมายการเงินควร เฉพาะเจาะจง วัดผลได้ ทำได้จริง สอดคล้องกับชีวิต และมีกำหนดเวลา เช่น 'ออมเงินดาวน์บ้าน 300,000 บาท ภายใน 3 ปี'"],
+ ["วางแผน","ทบทวนงบการเงินทุกเดือน","สิ้นเดือนใช้เวลา 15 นาทีดูแดชบอร์ด: รายจ่ายหมวดไหนเกินงบ อัตราการออมเป็นเท่าไร แล้วปรับแผนเดือนถัดไป"],
+ ["วางแผน","อัตราการออมเป้าหมาย ≥ 10%","แนวทางทั่วไปควรออมอย่างน้อย 10% ของรายได้ และเพิ่มขึ้นเมื่อรายได้เพิ่ม (ไม่ปล่อยให้รายจ่ายโตตามรายได้ทั้งหมด)"],
+ ["วางแผน","รายได้เพิ่ม อย่าเพิ่มรายจ่ายทั้งหมด","เมื่อได้ขึ้นเงินเดือนหรือโบนัส ให้กันส่วนหนึ่ง (เช่น ครึ่งหนึ่ง) ไปออม/ลงทุน/โปะหนี้ก่อน เพื่อป้องกัน Lifestyle inflation"],
+ ["ภัยการเงิน","ผลตอบแทนสูง การันตี = สัญญาณอันตราย","การชวนลงทุนที่การันตีผลตอบแทนสูงผิดปกติ ไม่มีความเสี่ยง และเน้นชวนสมาชิกเพิ่ม เป็นลักษณะของแชร์ลูกโซ่ ตรวจสอบใบอนุญาตกับ ก.ล.ต. หรือ ธปท. ก่อนเสมอ"],
+ ["ภัยการเงิน","ไม่กดลิงก์ ไม่ให้รหัส OTP","ธนาคารและหน่วยงานรัฐไม่ขอรหัส OTP/รหัสผ่านทาง SMS โทรศัพท์ หรือแชต อย่ากดลิงก์จากข้อความที่ไม่รู้จัก และไม่ติดตั้งแอปนอก Store"],
+ ["ภัยการเงิน","มิจฉาชีพแอบอ้างเจ้าหน้าที่","ถ้ามีคนโทรมาอ้างเป็นตำรวจ/ธนาคาร/หน่วยงานรัฐ ให้โอนเงินเพื่อ 'ตรวจสอบ' ให้วางสายแล้วโทรกลับเบอร์ทางการเอง ไม่มีหน่วยงานใดให้โอนเงินเพื่อตรวจสอบ"],
+ ["ภัยการเงิน","ไม่รับจ้างเปิดบัญชี","การให้ผู้อื่นใช้บัญชีธนาคารของเรา (บัญชีม้า) มีความผิดตามกฎหมาย แม้จะอ้างว่าได้ค่าตอบแทนเล็กน้อย"]
+];
+
+/* Financial health assessment: [dimension, question, options[ [text,score] x4 ]] */
+const HEALTH_DIMS = {liq:"สภาพคล่อง", debt:"การจัดการหนี้", save:"การออมและวางแผน", prot:"ความคุ้มครองความเสี่ยง", inv:"การลงทุนและเกษียณ"};
+const HEALTH_Q = [
+ ["liq","เงินสำรองฉุกเฉินของคุณ ใช้จ่ายได้นานเท่าไรหากไม่มีรายได้?",["ไม่มีเงินสำรองเลย","น้อยกว่า 1 เดือน","1–3 เดือน","3 เดือนขึ้นไป"]],
+ ["liq","เมื่อเทียบรายรับกับรายจ่ายในแต่ละเดือน",["ใช้เกินรายได้บ่อย ต้องยืม/รูดบัตร","ใช้หมดพอดี ไม่ค่อยเหลือ","เหลือบ้างบางเดือน","เหลือทุกเดือนเป็นสัดส่วนชัดเจน"]],
+ ["debt","ค่าผ่อนหนี้ทุกประเภทรวมกัน คิดเป็นกี่ % ของรายได้ต่อเดือน",["มากกว่า 50%","40–50%","20–40%","ต่ำกว่า 20% หรือไม่มีหนี้"]],
+ ["debt","การชำระบัตรเครดิต/บัตรกดเงินสด",["จ่ายขั้นต่ำ หรือมียอดค้างชำระ","จ่ายมากกว่าขั้นต่ำ แต่ไม่เต็มจำนวน","จ่ายเต็มเป็นส่วนใหญ่","จ่ายเต็มทุกเดือน หรือไม่มีบัตร"]],
+ ["debt","ใน 12 เดือนที่ผ่านมา มีหนี้นอกระบบ หรือผิดนัดชำระหนี้หรือไม่",["มีหนี้นอกระบบ","ผิดนัดชำระหลายครั้ง","ผิดนัด 1 ครั้ง","ไม่มีเลย"]],
+ ["save","คุณออมเงินกี่ % ของรายได้ต่อเดือน",["ไม่ได้ออม","น้อยกว่า 10%","10–20%","มากกว่า 20%"]],
+ ["save","การจดบันทึกรายรับรายจ่าย/ตั้งงบประมาณ",["ไม่เคยทำ","ทำบ้างเป็นครั้งคราว","ทำเป็นส่วนใหญ่","ทำทุกเดือนและทบทวนผล"]],
+ ["save","เป้าหมายการเงินของคุณ",["ไม่มีเป้าหมาย","มีแต่ยังไม่ชัดเจน","มีชัดเจนบางเรื่อง","ชัดเจน มีจำนวนเงิน กำหนดเวลา และติดตามผล"]],
+ ["prot","ความคุ้มครองค่ารักษาพยาบาล/อุบัติเหตุ",["ไม่มีเลย และไม่รู้สิทธิของตนเอง","มีสิทธิพื้นฐาน แต่ไม่เคยตรวจสอบว่าครอบคลุมอะไร","รู้สิทธิที่มี และมีประกันเพิ่มบางส่วน","ความคุ้มครองเพียงพอ และทบทวนสม่ำเสมอ"]],
+ ["prot","หากคุณเสียชีวิตหรือทุพพลภาพ คนที่พึ่งพาคุณจะเป็นอย่างไร",["มีคนพึ่งพิง แต่ไม่มีการเตรียมใด ๆ","มีเตรียมไว้บ้าง ไม่แน่ใจว่าพอ","ค่อนข้างพอ","เพียงพอแล้ว หรือไม่มีผู้พึ่งพิง"]],
+ ["inv","การลงทุนของคุณ",["ไม่มีเงินเก็บสำหรับลงทุน","มีเงินฝากอย่างเดียว","ลงทุนบ้าง แต่ไม่มีแผนชัด","ลงทุนสม่ำเสมอ กระจายความเสี่ยงตามเป้าหมาย"]],
+ ["inv","การเตรียมเงินเพื่อเกษียณ",["ยังไม่เคยคิด","รู้ว่าต้องเตรียม แต่ยังไม่เริ่ม","มีกองทุนสำรองเลี้ยงชีพ/ประกันสังคม อย่างเดียว","มีเป้าหมายตัวเลขและออมเพิ่มตามแผน"]]
+];
+const HEALTH_ADVICE = {
+ liq:"สร้างเงินสำรองฉุกเฉินให้ได้ 3–6 เท่าของรายจ่ายต่อเดือน โดยตั้งโอนอัตโนมัติเข้ากระเป๋า 'เงินออม/ฉุกเฉิน' ทุกเดือน และตัดรายจ่ายที่ไม่จำเป็นจนกว่ารายรับจะมากกว่ารายจ่าย",
+ debt:"ลิสต์หนี้ทุกก้อน (ยอด ดอกเบี้ย ค่างวด) แล้วโปะก้อนดอกเบี้ยสูงสุดก่อน งดก่อหนี้ใหม่เพื่อการบริโภค หากเริ่มผ่อนไม่ไหวให้ติดต่อเจ้าหนี้ขอปรับโครงสร้างหนี้ก่อนผิดนัด",
+ save:"บันทึกรายรับรายจ่ายต่อเนื่อง ตั้งงบรายหมวด และตั้งเป้าออมอย่างน้อย 10% ของรายได้ พร้อมเขียนเป้าหมายแบบ SMART (จำนวนเงิน + กำหนดเวลา)",
+ prot:"ตรวจสอบสิทธิสวัสดิการที่มีอยู่ (ประกันสังคม/สวัสดิการบริษัท) แล้วพิจารณาประกันสุขภาพ/อุบัติเหตุเพิ่มเฉพาะส่วนที่ขาด ถ้ามีผู้พึ่งพิงให้ประเมินทุนประกันชีวิตให้ครอบคลุมหนี้และค่าใช้จ่ายครอบครัว",
+ inv:"เมื่อมีเงินสำรองครบแล้ว เริ่มลงทุนระยะยาวแบบสม่ำเสมอ (DCA) ในกองทุนที่กระจายความเสี่ยง และกำหนดตัวเลขเป้าหมายเกษียณเพื่อคำนวณเงินที่ต้องออมต่อเดือน"
+};
+
+/* Knowledge quiz: [question, options[], correctIndex, explanation] */
+const QUIZ = [
+ ["ถ้าได้ผลตอบแทน 6% ต่อปี (ทบต้น) เงินต้นจะเพิ่มเป็น 2 เท่าในเวลาประมาณกี่ปี",["6 ปี","12 ปี","18 ปี","24 ปี"],1,"ตามกฎ 72: 72 ÷ 6 = 12 ปี (ค่าประมาณ)"],
+ ["ฝากเงิน 10,000 บาท ดอกเบี้ย 10% ต่อปี ทบต้นรายปี ครบ 2 ปีจะมีเงินเท่าไร",["12,000 บาท","12,100 บาท","11,000 บาท","12,200 บาท"],1,"ปีที่ 1: 10,000 × 1.10 = 11,000 · ปีที่ 2: 11,000 × 1.10 = 12,100 บาท"],
+ ["เงินสำรองฉุกเฉินที่แนะนำโดยทั่วไป ควรมีเท่าใด",["1 สัปดาห์ของรายจ่าย","3–6 เดือนของรายจ่าย","2 ปีของรายได้","ไม่จำเป็นถ้ามีบัตรเครดิต"],1,"แนวทางทั่วไปคือ 3–6 เท่าของค่าใช้จ่ายต่อเดือน และควรมากขึ้นถ้ารายได้ไม่แน่นอน"],
+ ["สถาบันคุ้มครองเงินฝาก (สคฝ.) คุ้มครองเงินฝากสูงสุดเท่าไร ต่อผู้ฝากต่อสถาบันการเงิน",["100,000 บาท","500,000 บาท","1 ล้านบาท","ไม่จำกัด"],2,"คุ้มครองสูงสุด 1 ล้านบาท ต่อผู้ฝาก 1 ราย ต่อ 1 สถาบันการเงิน"],
+ ["ถ้าดอกเบี้ยเงินฝาก 1% ต่อปี แต่เงินเฟ้อ 3% ต่อปี อำนาจซื้อของเงินฝากหลัง 1 ปีจะเป็นอย่างไร",["เพิ่มขึ้น","เท่าเดิม","ลดลง","ไม่สามารถบอกได้"],2,"ผลตอบแทนที่แท้จริง ≈ 1% − 3% = −2% อำนาจซื้อจึงลดลง"],
+ ["การกระจายการลงทุนในหลายหลักทรัพย์ ช่วยลดความเสี่ยงประเภทใดได้",["ความเสี่ยงทั้งระบบตลาด","ความเสี่ยงเฉพาะตัวของหลักทรัพย์","ความเสี่ยงจากเงินเฟ้อทั้งหมด","ทำให้ไม่มีความเสี่ยงเลย"],1,"การกระจายลดความเสี่ยงเฉพาะตัว (unsystematic risk) ได้ แต่ความเสี่ยงทั้งระบบยังคงอยู่"],
+ ["ผู้ถือ 'หุ้นกู้' มีสถานะอย่างไรต่อบริษัท",["เจ้าของบริษัท","เจ้าหนี้ของบริษัท","ผู้บริหาร","ลูกค้า"],1,"หุ้นกู้คือตราสารหนี้ ผู้ถือเป็นเจ้าหนี้ ส่วนผู้ถือหุ้นสามัญเป็นเจ้าของ"],
+ ["ตามแนวทางทั่วไป ค่าผ่อนหนี้รวมต่อเดือนไม่ควรเกินประมาณกี่ % ของรายได้",["10%","40%","70%","90%"],1,"แนวทางทั่วไปคือไม่เกินประมาณ 35–40% ของรายได้"],
+ ["DCA (Dollar-Cost Averaging) คืออะไร",["ลงทุนก้อนเดียวตอนราคาต่ำสุด","ลงทุนจำนวนเงินเท่ากันอย่างสม่ำเสมอตามรอบเวลา","ขายทั้งหมดเมื่อขาดทุน","กู้เงินมาลงทุน"],1,"DCA คือการทยอยลงทุนจำนวนเงินเท่า ๆ กันทุกงวด ลดความเสี่ยงจากการเข้าผิดจังหวะ"],
+ ["ข้อใดเป็นสัญญาณของแชร์ลูกโซ่/การหลอกลงทุน",["มีหนังสือชี้ชวนและได้รับอนุญาตจาก ก.ล.ต.","การันตีผลตอบแทนสูงผิดปกติ ไม่มีความเสี่ยง และชวนหาสมาชิกเพิ่ม","ผลตอบแทนผันผวนตามตลาด","มีค่าธรรมเนียมเปิดเผยชัดเจน"],1,"ผลตอบแทนสูงแบบการันตี + ไม่มีความเสี่ยง + เน้นหาสมาชิก เป็นลักษณะเด่นของแชร์ลูกโซ่"],
+ ["โดยทั่วไป ความสัมพันธ์ระหว่างผลตอบแทนที่คาดหวังกับความเสี่ยงเป็นอย่างไร",["สวนทางกัน","ไปทางเดียวกัน","ไม่เกี่ยวข้องกัน","ความเสี่ยงต่ำได้ผลตอบแทนสูงเสมอ"],1,"High risk, high (expected) return — ผลตอบแทนที่คาดหวังสูงมักมาพร้อมความเสี่ยงสูง"],
+ ["กฎ 50/30/20 แบ่งรายได้อย่างไร",["ออม 50 / จำเป็น 30 / อยากได้ 20","จำเป็น 50 / อยากได้ 30 / ออม-ชำระหนี้ 20","จำเป็น 50 / ออม 30 / อยากได้ 20","ลงทุน 50 / ใช้ 30 / บริจาค 20"],1,"50% ค่าใช้จ่ายจำเป็น · 30% สิ่งที่อยากได้ · 20% ออมและชำระหนี้"],
+ ["ซื้อกองทุนลดหย่อนภาษีแล้วขายก่อนครบเงื่อนไขการถือครอง จะเกิดอะไรขึ้น",["ไม่มีผลใด ๆ","ได้ลดหย่อนเพิ่ม","ต้องคืนภาษีที่เคยได้ลดหย่อนพร้อมเงินเพิ่ม","ถูกห้ามลงทุนตลอดชีวิต"],2,"ผิดเงื่อนไขต้องคืนสิทธิประโยชน์ทางภาษีที่ได้รับ พร้อมเงินเพิ่มตามที่กฎหมายกำหนด"],
+ ["อัตราส่วนสภาพคล่องพื้นฐาน (Basic liquidity ratio) คำนวณอย่างไร",["หนี้สินรวม ÷ รายได้","สินทรัพย์สภาพคล่อง ÷ ค่าใช้จ่ายต่อเดือน","รายได้ ÷ ค่าใช้จ่ายทั้งปี","เงินลงทุน ÷ สินทรัพย์รวม"],1,"สินทรัพย์สภาพคล่อง ÷ ค่าใช้จ่ายต่อเดือน = จำนวนเดือนที่อยู่ได้โดยไม่มีรายได้ (ควร ≥ 3)"],
+ ["การจ่ายบัตรเครดิตแค่ยอดขั้นต่ำ ผลคืออะไร",["ไม่เสียดอกเบี้ย","ยอดที่ค้างถูกคิดดอกเบี้ย และใช้เวลานานกว่าจะปลดหนี้","ได้คะแนนสะสมเพิ่ม","ธนาคารลดหนี้ให้"],1,"ยอดคงเหลือจะถูกคิดดอกเบี้ย ทำให้หนี้ลดช้าและเสียดอกเบี้ยรวมสูง"],
+ ["หากมีคนโทรมาอ้างเป็นเจ้าหน้าที่ธนาคาร ขอรหัส OTP เพื่อ 'ยืนยันตัวตน' ควรทำอย่างไร",["บอกรหัสให้เพื่อความรวดเร็ว","วางสาย แล้วติดต่อธนาคารผ่านเบอร์ทางการเอง","กดลิงก์ที่ส่งมาทาง SMS","โอนเงินไปบัญชีที่ปลอดภัยตามที่บอก"],1,"ธนาคารไม่ขอรหัส OTP ทางโทรศัพท์ ให้วางสายและติดต่อผ่านช่องทางทางการเอง"]
+];
+</script>
+<script>
+/* ===================== BIRTHDAY COLOR THEMES (สีประจำวันเกิด) ===================== */
+// key: [day label, color name, light{brand,ink,soft,bar,bg,bg2,hero}, dark{brand,ink,soft,bar,hero}]
+const ACCENTS = {
+  sun:  ["อาทิตย์","สีแดง",   {brand:"#cf4a63",ink:"#ffffff",soft:"#fde8ec",bar:"#ee9aaa",bg:"#fbf3f4",bg2:"#fde6ea",hero:"linear-gradient(135deg,#f4a3b1 0%,#f8c2b3 55%,#fcdcb6 100%)"}, {brand:"#f08a9c",ink:"#1d1216",soft:"#3a1f27",bar:"#e07d90",hero:"linear-gradient(135deg,#7a2f3e 0%,#8a4a3a 100%)"}],
+  mon:  ["จันทร์","สีเหลือง", {brand:"#a87400",ink:"#ffffff",soft:"#fdf3d3",bar:"#f0cc5c",bg:"#fbf8ee",bg2:"#fdf1cf",hero:"linear-gradient(135deg,#f6d872 0%,#fae7a3 55%,#fcd8ae 100%)"}, {brand:"#f2c94c",ink:"#1b1608",soft:"#3a3115",bar:"#d9b443",hero:"linear-gradient(135deg,#76601f 0%,#7c4f2a 100%)"}],
+  tue:  ["อังคาร","สีชมพู",  {brand:"#c94d8e",ink:"#ffffff",soft:"#fde8f2",bar:"#f0a3c8",bg:"#fbf2f6",bg2:"#fce3ef",hero:"linear-gradient(135deg,#f3a6cd 0%,#f7c3dc 55%,#e4c5f5 100%)"}, {brand:"#f08cc0",ink:"#1d1218",soft:"#3a1f30",bar:"#de7fb1",hero:"linear-gradient(135deg,#7a2f5a 0%,#5a3a7a 100%)"}],
+  wed:  ["พุธ (กลางวัน)","สีเขียว", {brand:"#22895d",ink:"#ffffff",soft:"#e1f5ec",bar:"#8fd6b5",bg:"#f1f8f4",bg2:"#ddf3e8",hero:"linear-gradient(135deg,#9edfc2 0%,#c6ecd8 55%,#d9efb7 100%)"}, {brand:"#6fd3a3",ink:"#10241b",soft:"#1c3328",bar:"#5fc193",hero:"linear-gradient(135deg,#2a6a52 0%,#4a6a2c 100%)"}],
+  wedn: ["พุธ (กลางคืน)","สีเทา", {brand:"#56606f",ink:"#ffffff",soft:"#eceff3",bar:"#aab4c2",bg:"#f3f4f7",bg2:"#e6e9ef",hero:"linear-gradient(135deg,#b8c2d0 0%,#d5dbe4 55%,#e4dfee 100%)"}, {brand:"#aab6c6",ink:"#14171c",soft:"#262b33",bar:"#94a0b2",hero:"linear-gradient(135deg,#3a4252 0%,#4a4458 100%)"}],
+  thu:  ["พฤหัสบดี","สีส้ม",  {brand:"#c0601b",ink:"#ffffff",soft:"#fdeedf",bar:"#f5b47f",bg:"#fbf4ee",bg2:"#fde7d4",hero:"linear-gradient(135deg,#f7b88a 0%,#fbd1a8 55%,#fbe2b2 100%)"}, {brand:"#f5a463",ink:"#1f140b",soft:"#3a2618",bar:"#e3925a",hero:"linear-gradient(135deg,#8a4a22 0%,#7a5a2a 100%)"}],
+  fri:  ["ศุกร์","สีฟ้า",     {brand:"#2f7fc7",ink:"#ffffff",soft:"#e4f1fd",bar:"#9cc8f2",bg:"#f1f6fc",bg2:"#ddebfb",hero:"linear-gradient(135deg,#a8d1f7 0%,#c3e2f9 55%,#d6d2f7 100%)"}, {brand:"#7db8f0",ink:"#0f1a26",soft:"#1d2c40",bar:"#6aa6e0",hero:"linear-gradient(135deg,#2c5a8a 0%,#41477e 100%)"}],
+  sat:  ["เสาร์","สีม่วง",    {brand:"#7b61d9",ink:"#ffffff",soft:"#efe9fd",bar:"#a48ef0",bg:"#f5f2fb",bg2:"#fdf1f6",hero:"linear-gradient(135deg,#b9a6f5 0%,#e7b3d6 55%,#f7cdb9 100%)"}, {brand:"#a893f5",ink:"#16131f",soft:"#2e2647",bar:"#9a82f0",hero:"linear-gradient(135deg,#4b3c8c 0%,#7a3f6c 60%,#8a5240 100%)"}]
+};
+const ACCENT_ORDER = ["sun","mon","tue","wed","wedn","thu","fri","sat"];
+const WEEKDAY_KEY = ["sun","mon","tue","wed","thu","fri","sat"];
+(function injectAccentCss(){
+  const L = a => `--brand:${a.brand};--brand-ink:${a.ink};--brand-soft:${a.soft};--bar:${a.bar};--bg:${a.bg};--bg-2:${a.bg2};--hero:${a.hero};`;
+  const Dk = a => `--bg:#16131f;--bg-2:#1b1524;--brand:${a.brand};--brand-ink:${a.ink};--brand-soft:${a.soft};--bar:${a.bar};--hero:${a.hero};`;
+  let css = "";
+  for (const k of ACCENT_ORDER) {
+    const [, , l, d] = ACCENTS[k];
+    css += `:root[data-accent="${k}"]{${L(l)}}\n`;
+    css += `@media (prefers-color-scheme: dark){:root[data-accent="${k}"]:not([data-theme="light"]){${Dk(d)}}}\n`;
+    css += `:root[data-theme="dark"][data-accent="${k}"]{${Dk(d)}}\n`;
+  }
+  const st = document.createElement("style"); st.id = "accentCss"; st.textContent = css; document.head.appendChild(st);
+})();
+function applyAccent(k){ const r = document.documentElement; if (k && ACCENTS[k]) r.dataset.accent = k; else delete r.dataset.accent; }
+</script>
+<script>
+"use strict";
+/* ===================== UTILITIES ===================== */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const pad = n => String(n).padStart(2, "0");
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const ymOf = d => d.slice(0, 7);
+const addMonth = (ym, k) => { let [y, m] = ym.split("-").map(Number); m += k; while (m > 12) { m -= 12; y++; } while (m < 1) { m += 12; y--; } return `${y}-${pad(m)}`; };
+const monthLabel = (ym, style="long") => { const [y, m] = ym.split("-").map(Number); return new Date(y, m-1, 1).toLocaleDateString("th-TH", {month: style, year: "numeric"}); };
+const dayLabel = d => new Date(d + "T00:00:00").toLocaleDateString("th-TH", {weekday:"short", day:"numeric", month:"short", year:"numeric"});
+const fmt = n => (Number(n)||0).toLocaleString("th-TH", {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmt0 = n => (Number(n)||0).toLocaleString("th-TH", {maximumFractionDigits:0});
+const compact = n => { const a = Math.abs(n); if (a >= 1e6) return (n/1e6).toFixed(a >= 1e7 ? 0 : 1) + "M"; if (a >= 1e3) return (n/1e3).toFixed(a >= 1e4 ? 0 : 1) + "K"; return String(Math.round(n)); };
+const round2 = n => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+function toast(msg, ms=2400){ const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), ms); }
+/* capabilities (available only when opened through claude.ai link) */
+const Caps = {downloads: null, sample: null};
+async function capUse(name){ try { return window.claude?.use ? await window.claude.use(name) : null; } catch (e) { return null; } }
+async function saveFile(name, text, type="application/json"){
+  const dl = Caps.downloads || await capUse("downloads");
+  if (dl) {
+    try { await dl.save({filename: name, data: new Blob([text], {type})}); toast("บันทึกไฟล์แล้ว"); return true; }
+    catch (e) { if (e?.code === "declined") { toast("ยกเลิกการบันทึกไฟล์"); return false; } if (e?.code === "rate_limited") { toast("กรุณารอสักครู่แล้วลองใหม่"); return false; } }
+  }
+  if (window.claude?.use) { toast("ดาวน์โหลดไฟล์ไม่ได้ในหน้านี้", 3500); return false; }
+  const b = new Blob([text], {type}); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); return true;
+}
+/* in-page confirmation (native confirm/prompt are blocked in the viewer) */
+function armConfirm(el, fn, label="กดอีกครั้งเพื่อยืนยัน"){
+  if (el.dataset.armed) { fn(); return; }
+  const old = el.innerHTML; el.dataset.armed = "1"; el.textContent = label; el.classList.add("danger");
+  setTimeout(() => { if (el.isConnected) { delete el.dataset.armed; el.innerHTML = old; el.classList.remove("danger"); } }, 3500);
+}
+function askModal({title, body, ok="ยืนยัน", danger=false, input=null}){
+  return new Promise(res => {
+    openModal(`<h3>${esc(title)}</h3><p>${body}</p>${input ? `<label class="f"><span>${esc(input)}</span><input type="text" id="askIn" autocomplete="off"></label>` : ""}
+      <div class="row" style="justify-content:flex-end"><button class="btn" id="askNo">ยกเลิก</button><button class="btn ${danger ? "danger" : "pri"}" id="askOk">${esc(ok)}</button></div>`);
+    $("#askNo").onclick = () => { closeModal(); res(null); };
+    $("#askOk").onclick = () => { const v = input ? $("#askIn").value : true; closeModal(); res(v); };
+  });
+}
+
+/* ===================== STORAGE (local + cloud sync) ===================== */
+const Store = (() => {
+  const mem = {}; let ok = true;
+  try { localStorage.setItem("__fw_t", "1"); localStorage.removeItem("__fw_t"); } catch (e) { ok = false; }
+  return {
+    ok,
+    get(k){ try { return ok ? localStorage.getItem(k) : (k in mem ? mem[k] : null); } catch (e) { return mem[k] ?? null; } },
+    set(k, v){ try { if (ok) localStorage.setItem(k, v); else mem[k] = v; } catch (e) { mem[k] = v; toast("บันทึกในเครื่องไม่สำเร็จ: พื้นที่จัดเก็บอาจเต็ม"); } },
+    del(k){ try { if (ok) localStorage.removeItem(k); } catch (e) {} delete mem[k]; },
+    keys(prefix){ const out = new Set(Object.keys(mem).filter(k => k.startsWith(prefix))); try { if (ok) for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith(prefix)) out.add(k); } } catch (e) {} return [...out]; }
+  };
+})();
+/* Cloud: the viewer's private, per-person store on claude.ai (data/users/<id>/...). Holds only ciphertext. */
+const CHUNK = 180000;
+const Cloud = {
+  ready: false, col: null, q: Promise.resolve(),
+  async init(){
+    const db = await capUse("db"), user = await capUse("user"); if (!db || !user) return false;
+    try { const id = await user.id(); if (!id) return false; this.col = db.collection("data/users/" + id); this.ready = true; return true; } catch (e) { return false; }
+  },
+  docId: k => k.replace(/[^A-Za-z0-9_-]/g, "_"),
+  async read(k){
+    const m = await this.col.doc(this.docId(k)).get(); if (!m.exists) return null; const d = m.data();
+    let v = d.v ?? ""; for (let i = 0; i < (d.n || 0); i++) { const c = await this.col.doc(this.docId(k) + "__" + i).get(); if (!c.exists) return null; v += c.data().c; }
+    return {k: d.k, t: d.t || 0, v};
+  },
+  write(k, v, t){
+    if (!this.ready) return;
+    this.q = this.q.then(async () => {
+      const id = this.docId(k), small = v.length <= CHUNK, parts = [];
+      if (!small) for (let i = 0; i < v.length; i += CHUNK) parts.push(v.slice(i, i + CHUNK));
+      for (let i = 0; i < parts.length; i++) await this.col.doc(id + "__" + i).set({c: parts[i]});
+      await this.col.doc(id).set({k, t, v: small ? v : "", n: parts.length});
+    }).catch(e => { console.warn("cloud write", e); toast("ซิงก์ข้อมูลขึ้นบัญชี Claude ไม่สำเร็จ — ข้อมูลยังอยู่ในเครื่องนี้", 3500); });
+    return this.q;
+  },
+  remove(k){
+    if (!this.ready) return;
+    this.q = this.q.then(async () => { const id = this.docId(k), m = await this.col.doc(id).get(); const n = m.exists ? (m.data().n || 0) : 0;
+      for (let i = 0; i < n; i++) await this.col.doc(id + "__" + i).delete(); if (m.exists) await this.col.doc(id).delete(); }).catch(e => console.warn("cloud del", e));
+    return this.q;
+  },
+  async listKeys(){ const s = await this.col.get(); return s.docs.map(d => d.data()).filter(d => d && d.k).map(d => ({k: d.k, t: d.t || 0})); }
+};
+const K_DATA = u => "fw.acct." + u, K_FAIL = u => "fw.fail." + u;
+const localT = k => { try { return JSON.parse(Store.get(k) || "{}").t || 0; } catch (e) { return 0; } };
+function putAcct(u, rec){ rec.t = Date.now(); const s = JSON.stringify(rec); Store.set(K_DATA(u), s); Cloud.write(K_DATA(u), s, rec.t); }
+function getAcct(u){ try { return JSON.parse(Store.get(K_DATA(u)) || "null"); } catch (e) { return null; } }
+function delAcct(u){ Store.del(K_DATA(u)); Store.del(K_FAIL(u)); Cloud.remove(K_DATA(u)); }
+const listUsers = () => Store.keys("fw.acct.").map(k => k.slice(8)).sort();
+async function pullOne(k){ if (!Cloud.ready) return; try { const r = await Cloud.read(k); if (r && r.t > localT(k)) Store.set(k, r.v); } catch (e) { console.warn("pull", e); } }
+async function syncAll(){
+  if (!Cloud.ready) return;
+  try {
+    const remote = await Cloud.listKeys(), seen = new Set();
+    for (const {k, t} of remote) { seen.add(k); if (t > localT(k)) await pullOne(k); else if (t < localT(k)) Cloud.write(k, Store.get(k), localT(k)); }
+    for (const k of Store.keys("fw.acct.")) if (!seen.has(k)) Cloud.write(k, Store.get(k), localT(k) || Date.now());
+  } catch (e) { console.warn("sync", e); }
+}
+
+/* ===================== CRYPTO (PBKDF2 + AES-GCM) ===================== */
+const TE = new TextEncoder(), TD = new TextDecoder();
+const PBKDF2_ITER = 250000;
+function b64(buf){ const b = new Uint8Array(buf); let s = ""; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(s); }
+function unb64(s){ const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+async function deriveKey(pass, saltB64, iter){
+  const base = await crypto.subtle.importKey("raw", TE.encode(pass), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2", salt: unb64(saltB64), iterations: iter, hash:"SHA-256"}, base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+}
+async function encryptObj(key, obj){ const iv = crypto.getRandomValues(new Uint8Array(12)); const ct = await crypto.subtle.encrypt({name:"AES-GCM", iv}, key, TE.encode(JSON.stringify(obj))); return {iv: b64(iv), ct: b64(ct)}; }
+async function decryptObj(key, blob){ const pt = await crypto.subtle.decrypt({name:"AES-GCM", iv: unb64(blob.iv)}, key, unb64(blob.ct)); return JSON.parse(TD.decode(pt)); }
+const newSalt = () => b64(crypto.getRandomValues(new Uint8Array(16)));
+
+/* ===================== SESSION ===================== */
+let S = null; // {user, key, salt, iter, created, data}
+const UI = { view:"dash", month: ymOf(today()), tf:{month: ymOf(today()), wallet:"", type:"", cat:"", q:""}, tipCat:"ทั้งหมด", tipOffset:0, htab:"assess", quiz:null, showArchived:false };
+
+function newData(display){
+  return {
+    v:1, profile:{display: display || "", created: today()},
+    wallets:[
+      {id:uid(), name:"เงินสด", type:"cash", icon:"💵", color:WALLET_COLORS[0], opening:0},
+      {id:uid(), name:"บัญชีธนาคาร", type:"bank", icon:"🏦", color:WALLET_COLORS[1], opening:0},
+      {id:uid(), name:"เงินสำรองฉุกเฉิน", type:"saving", icon:"🐷", color:WALLET_COLORS[3], opening:0}
+    ],
+    cats:{ income: DEFAULT_CATS.income.map(([id,name,icon]) => ({id,name,icon})),
+           expense: DEFAULT_CATS.expense.map(([id,name,icon,kind]) => ({id,name,icon,kind:kind||null})) },
+    tx:[], budgets:{}, tips:{fav:[], custom:[], ai:[]}, health:[], quiz:[],
+    settings:{lockMin:10, theme:"auto"}
+  };
+}
+
+let saveTimer = null, saving = Promise.resolve();
+function save(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 300); }
+function saveNow(){
+  clearTimeout(saveTimer);
+  if (!S) return saving;
+  const sess = S;
+  saving = saving.then(async () => { const blob = await encryptObj(sess.key, sess.data); putAcct(sess.user, {salt: sess.salt, iter: sess.iter, created: sess.created, ...blob}); }).catch(e => toast("บันทึกล้มเหลว: " + e.message));
+  return saving;
+}
+
+async function register(u, display, p){
+  await pullOne(K_DATA(u));
+  if (getAcct(u)) throw new Error("ชื่อผู้ใช้นี้ถูกใช้แล้ว");
+  const salt = newSalt(), key = await deriveKey(p, salt, PBKDF2_ITER), data = newData(display || u);
+  S = {user:u, key, salt, iter: PBKDF2_ITER, created: today(), data};
+  await saveNow(); enterApp();
+}
+async function login(u, p){
+  const fail = JSON.parse(Store.get(K_FAIL(u)) || '{"n":0,"until":0}');
+  if (fail.until > Date.now()) throw new Error(`ใส่รหัสผิดหลายครั้ง กรุณารอ ${Math.ceil((fail.until - Date.now())/1000)} วินาที`);
+  const bad = () => { fail.n++; if (fail.n >= 5) fail.until = Date.now() + Math.min(900, 30 * 2 ** (fail.n - 5)) * 1000; Store.set(K_FAIL(u), JSON.stringify(fail)); return new Error("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"); };
+  await pullOne(K_DATA(u));
+  const rec = getAcct(u);
+  if (!rec) { await new Promise(r => setTimeout(r, 400)); throw new Error("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"); }
+  const key = await deriveKey(p, rec.salt, rec.iter);
+  let data; try { data = await decryptObj(key, rec); } catch (e) { throw bad(); }
+  Store.del(K_FAIL(u));
+  S = {user:u, key, salt: rec.salt, iter: rec.iter, created: rec.created, data: migrate(data)}; enterApp();
+}
+function migrate(d){
+  const base = newData(d.profile?.display);
+  d.settings = Object.assign({}, base.settings, d.settings || {});
+  d.tips = Object.assign({fav:[], custom:[], ai:[]}, d.tips || {});
+  for (const k of ["tx","health","quiz","wallets"]) d[k] = d[k] || [];
+  d.budgets = d.budgets || {}; d.cats = d.cats || base.cats;
+  return d;
+}
+async function lock(msg){
+  if (S) { await saveNow(); }
+  S = null; UI.quiz = null; closeModal();
+  $("#view").innerHTML = ""; $("#app").classList.add("hidden"); $("#auth").classList.remove("hidden");
+  $("#lPass").value = ""; authTab(false); applyTheme("auto"); applyAccent(null); UI.birthMsg = "";
+  if (msg) $("#lErr").textContent = msg;
+}
+
+/* idle auto-lock */
+let idleT = null;
+function bumpIdle(){ if (!S) return; clearTimeout(idleT); const m = Number(S.data.settings.lockMin) || 0; if (m > 0) idleT = setTimeout(() => lock(`ล็อกอัตโนมัติเนื่องจากไม่มีการใช้งาน ${m} นาที`), m * 60000); }
+["click","keydown","mousemove","touchstart","scroll"].forEach(ev => document.addEventListener(ev, bumpIdle, {passive:true}));
+window.addEventListener("beforeunload", () => { if (S) saveNow(); });
+
+function applyTheme(t){ const r = document.documentElement; if (t === "light" || t === "dark") r.dataset.theme = t; else delete r.dataset.theme; }
+
+/* ===================== DATA HELPERS ===================== */
+const D = () => S.data;
+const walletById = id => D().wallets.find(w => w.id === id);
+const activeWallets = () => D().wallets.filter(w => !w.archived);
+const catById = (type, id) => (D().cats[type] || []).find(c => c.id === id);
+const catAny = id => catById("expense", id) || catById("income", id);
+function walletBal(wid){
+  const w = walletById(wid); let b = Number(w?.opening) || 0;
+  for (const t of D().tx) {
+    if (t.type === "income" && t.walletId === wid) b += t.amount;
+    else if (t.type === "expense" && t.walletId === wid) b -= t.amount;
+    else if (t.type === "transfer") { if (t.walletId === wid) b -= t.amount; if (t.toWalletId === wid) b += t.amount; }
+  }
+  return round2(b);
+}
+function monthStats(ym){
+  let inc = 0, exp = 0, debt = 0, saveExp = 0; const byCat = {}, incByCat = {};
+  for (const t of D().tx) {
+    if (ymOf(t.date) !== ym) continue;
+    if (t.type === "income") { inc += t.amount; incByCat[t.catId] = (incByCat[t.catId] || 0) + t.amount; }
+    else if (t.type === "expense") {
+      exp += t.amount; byCat[t.catId] = (byCat[t.catId] || 0) + t.amount;
+      const c = catById("expense", t.catId); if (c?.kind === "debt") debt += t.amount; if (c?.kind === "save") saveExp += t.amount;
+    }
+  }
+  inc = round2(inc); exp = round2(exp);
+  const savings = round2(inc - (exp - saveExp));          // ออม = รายรับ − รายจ่ายบริโภค (ไม่นับหมวดออม/ลงทุน)
+  return {inc, exp, net: round2(inc - exp), debt: round2(debt), saveExp: round2(saveExp), savings, rate: inc > 0 ? savings / inc : null, debtRatio: inc > 0 ? debt / inc : null, byCat, incByCat};
+}
+function liquidity(){
+  const liquid = activeWallets().filter(w => LIQUID_TYPES.includes(w.type)).reduce((s, w) => s + walletBal(w.id), 0);
+  // ค่าใช้จ่ายเฉลี่ย 3 เดือนล่าสุดที่มีข้อมูล (ไม่นับหมวดออม/ลงทุน)
+  const cur = ymOf(today()); const exps = [];
+  for (let i = 0; i < 12 && exps.length < 3; i++) { const s = monthStats(addMonth(cur, -i)); const e = s.exp - s.saveExp; if (e > 0) exps.push(e); }
+  const avg = exps.length ? exps.reduce((a, b) => a + b, 0) / exps.length : 0;
+  return {liquid: round2(liquid), avgExp: round2(avg), months: avg > 0 ? liquid / avg : null, n: exps.length};
+}
+function allTips(){
+  const d = D();
+  return [
+    ...TIPS.map((t, i) => ({id: "b" + i, cat: t[0], title: t[1], body: t[2], src: "คลังความรู้"})),
+    ...d.tips.ai.map(t => ({...t, src: "AI · " + (t.date || "")})),
+    ...d.tips.custom.map(t => ({...t, src: "ของฉัน"}))
+  ];
+}
+function tipOfDay(offset=0){
+  const all = allTips(); const dayNum = Math.floor(new Date(today() + "T00:00:00").getTime() / 864e5);
+  return all[((dayNum * 7 + offset) % all.length + all.length) % all.length];
+}
+function statusChip(level, text){ const ic = {good:"✓", warn:"!", bad:"✕"}[level]; return `<span class="status ${level}">${ic} ${esc(text)}</span>`; }
+
+/* ===================== AUTH UI ===================== */
+function authTab(reg){ $("#tabLogin").classList.toggle("on", !reg); $("#tabReg").classList.toggle("on", reg); $("#fLogin").classList.toggle("hidden", reg); $("#fReg").classList.toggle("hidden", !reg); $("#lErr").textContent = ""; $("#rErr").textContent = ""; }
+$("#tabLogin").onclick = () => authTab(false);
+$("#tabReg").onclick = () => authTab(true);
+$("#fLogin").onsubmit = async e => {
+  e.preventDefault(); const btn = $("#lBtn"); btn.disabled = true; btn.textContent = "กำลังตรวจสอบ…"; $("#lErr").textContent = "";
+  try { await login($("#lUser").value.trim().toLowerCase(), $("#lPass").value); }
+  catch (err) { $("#lErr").textContent = err.message; }
+  finally { btn.disabled = false; btn.textContent = "เข้าสู่ระบบ"; }
+};
+$("#fReg").onsubmit = async e => {
+  e.preventDefault(); const er = $("#rErr"); er.textContent = "";
+  const u = $("#rUser").value.trim().toLowerCase(), p = $("#rPass").value, p2 = $("#rPass2").value;
+  if (!/^[a-z0-9_.-]{3,20}$/.test(u)) return er.textContent = "ชื่อผู้ใช้ต้องเป็น a–z, 0–9, _ . - ความยาว 3–20 ตัว";
+  if (p.length < 8 || !/[A-Za-z]/.test(p) || !/[0-9]/.test(p)) return er.textContent = "รหัสผ่านต้องยาวอย่างน้อย 8 ตัว และมีทั้งตัวอักษรและตัวเลข";
+  if (p !== p2) return er.textContent = "รหัสผ่านทั้งสองช่องไม่ตรงกัน";
+  const btn = $("#rBtn"); btn.disabled = true; btn.textContent = "กำลังสร้างบัญชี…";
+  try { await register(u, $("#rName").value.trim(), p); $("#fReg").reset(); }
+  catch (err) { er.textContent = err.message; }
+  finally { btn.disabled = false; btn.textContent = "สร้างบัญชี"; }
+};
+$("#lnkRestore").onclick = e => { e.preventDefault(); $("#restoreFile").click(); };
+$("#restoreFile").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    const b = JSON.parse(await f.text());
+    if (b.app !== "fw-backup" || !b.user || !b.salt || !b.iv || !b.ct) throw new Error("ไฟล์ไม่ใช่ไฟล์สำรองของโปรแกรมนี้");
+    await pullOne(K_DATA(b.user));
+    if (getAcct(b.user) && !(await askModal({title: "เขียนทับบัญชีเดิม?", body: `มีบัญชี "${esc(b.user)}" อยู่แล้ว ข้อมูลปัจจุบันของบัญชีนี้จะถูกแทนที่ด้วยข้อมูลจากไฟล์สำรอง`, ok: "เขียนทับ", danger: true}))) return;
+    putAcct(b.user, {salt: b.salt, iter: b.iter || PBKDF2_ITER, created: b.created || today(), iv: b.iv, ct: b.ct});
+    authTab(false); $("#lUser").value = b.user; $("#lPass").focus();
+    $("#lErr").textContent = ""; toast(`กู้คืนบัญชี "${b.user}" แล้ว — เข้าสู่ระบบด้วยรหัสผ่านตอนที่สำรองไฟล์`, 4000);
+  } catch (err) { $("#lErr").textContent = "กู้คืนไม่สำเร็จ: " + err.message; }
+};
+
+/* ===================== APP SHELL ===================== */
+function setWho(){ const n = D().profile.display || S.user; $("#whoami").textContent = n; $("#avatar").textContent = ([...n.trim()].find(c => !"เแโใไ".includes(c)) || "฿").toUpperCase(); }
+function enterApp(){
+  $("#auth").classList.add("hidden"); $("#app").classList.remove("hidden");
+  setWho();
+  applyTheme(D().settings.theme); applyAccent(D().settings.accent); UI.view = "dash"; UI.month = ymOf(today()); UI.tf.month = UI.month;
+  render(); bumpIdle();
+}
+$("#nav").onclick = e => { const b = e.target.closest("button[data-v]"); if (!b) return; UI.view = b.dataset.v; render(); window.scrollTo(0, 0); };
+$("#btnLock").onclick = () => lock();
+$("#fab").onclick = () => txModal();
+
+function render(){
+  if (!S) return;
+  $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === UI.view));
+  const v = {dash: viewDash, tx: viewTx, wallets: viewWallets, tips: viewTips, health: viewHealth, settings: viewSettings}[UI.view];
+  $("#view").innerHTML = v();
+  $("#fab").classList.toggle("hidden", !["dash","tx","wallets"].includes(UI.view));
+}
+
+/* ===================== DASHBOARD ===================== */
+function viewDash(){
+  const ym = UI.month, s = monthStats(ym), lq = liquidity();
+  const net = activeWallets().reduce((a, w) => a + walletBal(w.id), 0);
+  const rateTxt = s.rate === null ? "—" : (s.rate * 100).toFixed(1) + "%";
+  const tip = tipOfDay(UI.tipOffset);
+  const noData = !D().tx.length;
+  return `
+  <h1 class="pg">สวัสดี ${esc(D().profile.display || S.user)}</h1>
+  <p class="sub">ภาพรวมการเงินของคุณ</p>
+  ${noData ? `<div class="card" style="margin-bottom:14px"><b>เริ่มต้นใช้งาน</b><ol style="margin:6px 0 0;padding-left:20px;color:var(--text-2)"><li>ไปที่ <b>กระเป๋า</b> ใส่ยอดเงินตั้งต้นของแต่ละกระเป๋า (หรือเพิ่มกระเป๋าใหม่)</li><li>กดปุ่ม <b>+</b> เพื่อบันทึกรายรับ/รายจ่าย/โอนระหว่างกระเป๋า</li><li>ตั้งงบรายหมวดได้ที่ <b>ตั้งค่า</b> แล้วลองทำแบบ <b>ประเมินสุขภาพการเงิน</b></li></ol></div>` : ""}
+  <div class="monthbar">
+    <button class="btn sm" data-act="mprev">‹</button><span class="m">${monthLabel(ym)}</span><button class="btn sm" data-act="mnext">›</button>
+    ${ym !== ymOf(today()) ? `<button class="btn sm wide" data-act="mnow">เดือนปัจจุบัน</button>` : ""}
+  </div>
+  <div class="hero">
+    <div class="hl">ยอดเงินรวมทุกกระเป๋า</div>
+    <div class="hero-bal num">${net < 0 ? "−" : ""}฿${fmt(Math.abs(net))}</div>
+    <div class="hrow"><div class="hp"><small>รายรับ ${esc(monthLabel(ym, "short"))}</small><b class="num">+${fmt(s.inc)}</b></div><div class="hp"><small>รายจ่าย ${esc(monthLabel(ym, "short"))}</small><b class="num">−${fmt(s.exp)}</b></div><div class="hp"><small>${activeWallets().length} กระเป๋า</small><b>${s.rate === null ? "ยังไม่มีรายรับ" : "ออม " + rateTxt}</b></div></div>
+  </div>
+  <div class="kpis">
+    <div class="card kpi"><div class="kic" style="background:var(--mint-soft)">↓</div><div><div class="lbl">รายรับ</div><div class="val num">${fmt(s.inc)}</div></div></div>
+    <div class="card kpi"><div class="kic" style="background:var(--pink-soft)">↑</div><div><div class="lbl">รายจ่าย</div><div class="val num">${fmt(s.exp)}</div></div></div>
+    <div class="card kpi"><div class="kic" style="background:var(--sky-soft)">≈</div><div><div class="lbl">คงเหลือสุทธิ</div><div class="val num ${s.net < 0 ? "neg" : ""}">${s.net < 0 ? "−" : ""}${fmt(Math.abs(s.net))}</div></div></div>
+    <div class="card kpi"><div class="kic" style="background:var(--peach-soft)">%</div><div><div class="lbl">อัตราการออม</div><div class="val num">${rateTxt}</div><div class="hint">เป้าหมาย ≥ 10%</div></div></div>
+  </div>
+  <div class="dash">
+    <div class="cards">
+      <div class="card"><h3>รายรับ–รายจ่าย 6 เดือนล่าสุด</h3>${trendChart(ym)}</div>
+      <div class="card"><h3>รายจ่ายตามหมวด · ${monthLabel(ym, "short")}</h3>${catBars(s)}</div>
+      <div class="card"><h3>งบประมาณรายหมวด</h3>${budgetBars(s)}</div>
+    </div>
+    <div class="cards" style="align-content:start">
+      <div class="tip-hero"><div class="tag">💡 เกล็ดความรู้วันนี้ · ${esc(tip.cat)}</div><h2>${esc(tip.title)}</h2><p>${esc(tip.body)}</p>
+        <div class="row" style="margin-top:10px"><button class="btn sm" data-act="tipnext">เกล็ดถัดไป ›</button><button class="btn sm" data-act="go" data-v="tips">ดูทั้งหมด</button></div></div>
+      <div class="card"><h3>สุขภาพการเงินจากข้อมูลจริง</h3>${ratioList(s, lq, net)}</div>
+      <div class="card"><h3>กระเป๋าเงิน</h3><div class="list">${activeWallets().map(w => { const b = walletBal(w.id); return `
+        <div class="li"><div class="ico" style="background:${wColor(w.color)}">${esc(w.icon)}</div><div class="mid"><div class="t1">${esc(w.name)}</div><div class="t2">${WALLET_TYPES[w.type] || ""}</div></div><div class="amt num ${b < 0 ? "neg" : ""}">${b < 0 ? "−" : ""}${fmt(Math.abs(b))}</div></div>`; }).join("")}</div></div>
+    </div>
+  </div>`;
+}
+function ratioList(s, lq, net){
+  const rows = [];
+  if (lq.months === null) rows.push(["เงินสำรองฉุกเฉิน", "ยังไม่มีข้อมูลรายจ่าย", null, ""]);
+  else { const m = lq.months; rows.push(["เงินสำรองฉุกเฉิน", `${m.toFixed(1)} เดือน`, m >= 3 ? "good" : m >= 1 ? "warn" : "bad", `สินทรัพย์สภาพคล่อง ${fmt(lq.liquid)} ÷ รายจ่ายเฉลี่ย ${fmt(lq.avgExp)}/เดือน (${lq.n} เดือนล่าสุด) · ควร ≥ 3 เดือน`]); }
+  if (s.rate === null) rows.push(["อัตราการออม (เดือนนี้)", "ยังไม่มีรายรับ", null, ""]);
+  else { const r = s.rate * 100; rows.push(["อัตราการออม (เดือนนี้)", `${r.toFixed(1)}%`, r >= 10 ? "good" : r >= 0 ? "warn" : "bad", `(รายรับ ${fmt(s.inc)} − รายจ่ายที่ไม่ใช่การออม ${fmt(s.exp - s.saveExp)}) ÷ รายรับ · ควร ≥ 10%`]); }
+  if (s.debtRatio === null) rows.push(["ภาระหนี้ต่อรายได้", "ยังไม่มีรายรับ", null, ""]);
+  else { const r = s.debtRatio * 100; rows.push(["ภาระหนี้ต่อรายได้", `${r.toFixed(1)}%`, r <= 35 ? "good" : r <= 50 ? "warn" : "bad", `หมวด "ผ่อนชำระหนี้" ${fmt(s.debt)} ÷ รายรับ ${fmt(s.inc)} · ควร ≤ 35–40%`]); }
+  const lvTxt = {good:"ดี", warn:"ควรระวัง", bad:"ต้องปรับปรุง"};
+  return `<div class="list">${rows.map(([n, v, lv, how]) => `<div class="li" ${how ? `data-tt="${esc(esc(how))}"` : ""}><div class="mid"><div class="t1">${n}</div><div class="t2">${esc(v)}</div></div>${lv ? statusChip(lv, lvTxt[lv]) : `<span class="pill">—</span>`}</div>`).join("")}</div>
+  <p class="note" style="margin:8px 0 0">ชี้ที่แต่ละแถวเพื่อดูสูตรคำนวณ · เกณฑ์เป็นแนวทางทั่วไป</p>`;
+}
+function trendChart(endYm){
+  const months = []; for (let i = 5; i >= 0; i--) months.push(addMonth(endYm, -i));
+  const data = months.map(m => ({m, ...monthStats(m)}));
+  const max = Math.max(1, ...data.map(d => Math.max(d.inc, d.exp)));
+  const step = niceStep(max / 4), top = step * Math.ceil(max / step);
+  const W = 600, H = 230, L = 46, R = 8, T = 10, B = 28, cw = (W - L - R) / 6, bw = Math.min(22, cw * 0.26);
+  const y = v => T + (H - T - B) * (1 - v / top);
+  const bar = (x, v, cls) => { if (v <= 0) return ""; const yy = y(v), h = (H - B) - yy, r = Math.min(6, h, bw / 2); return `<path d="M${x},${H-B} V${yy+r} Q${x},${yy} ${x+r},${yy} H${x+bw-r} Q${x+bw},${yy} ${x+bw},${yy+r} V${H-B} Z" fill="var(${cls})"/>`; };
+  let g = "";
+  for (let v = 0; v <= top + 1e-9; v += step) g += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${compact(v)}</text>`;
+  data.forEach((d, i) => {
+    const cx = L + cw * i + cw / 2;
+    g += bar(cx - bw - 1, d.inc, "--income") + bar(cx + 1, d.exp, "--expense");
+    g += `<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="11.5" fill="var(--text-2)" ${d.m === endYm ? 'font-weight="700"' : ""}>${esc(monthLabel(d.m, "short"))}</text>`;
+    const tt = `<b>${esc(monthLabel(d.m))}</b><br>รายรับ: ${fmt(d.inc)}<br>รายจ่าย: ${fmt(d.exp)}<br>คงเหลือ: ${fmt(d.net)}`;
+    g += `<rect x="${L + cw*i}" y="${T}" width="${cw}" height="${H-T-B}" fill="transparent" data-tt="${esc(tt)}"/>`;
+  });
+  return `<div class="legend"><span><i style="background:var(--income)"></i>รายรับ</span><span><i style="background:var(--expense)"></i>รายจ่าย</span></div>
+  <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="กราฟรายรับรายจ่าย 6 เดือน">${g}</svg>`;
+}
+function niceStep(raw){ if (raw <= 0) return 1; const p = 10 ** Math.floor(Math.log10(raw)), n = raw / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p; }
+function catBars(s){
+  let items = Object.entries(s.byCat).map(([id, v]) => ({id, v, c: catById("expense", id)})).sort((a, b) => b.v - a.v);
+  if (!items.length) return `<div class="empty">ยังไม่มีรายจ่ายในเดือนนี้</div>`;
+  if (items.length > 8) { const rest = items.slice(7); items = items.slice(0, 7); items.push({id:"_o", v: rest.reduce((a, b) => a + b.v, 0), c:{name:`อื่น ๆ (${rest.length} หมวด)`, icon:"…"}}); }
+  const max = items[0].v, tot = s.exp;
+  return items.map(it => { const nm = `${it.c?.icon || ""} ${it.c?.name || "ไม่ระบุหมวด"}`; const pct = tot ? (it.v / tot * 100).toFixed(1) : 0;
+    return `<div class="hbar" data-tt="${esc(`<b>${esc(nm)}</b><br>${fmt(it.v)} บาท<br>${pct}% ของรายจ่ายเดือนนี้`)}"><div class="nm">${esc(nm)}</div><div class="tr"><div class="fl" style="width:${Math.max(1, it.v / max * 100)}%"></div></div><div class="v num">${fmt(it.v)}</div></div>`; }).join("");
+}
+function budgetBars(s){
+  const b = D().budgets; const ids = Object.keys(b).filter(k => b[k] > 0 && catById("expense", k));
+  if (!ids.length) return `<div class="empty">ยังไม่ได้ตั้งงบ <button class="btn sm" data-act="go" data-v="settings">ตั้งงบรายหมวด</button></div>`;
+  return `<div class="budget">${ids.map(id => { const c = catById("expense", id), used = s.byCat[id] || 0, lim = b[id], p = used / lim * 100, over = used > lim;
+    return `<div class="hbar" data-tt="${esc(`<b>${esc(c.name)}</b><br>ใช้ไป ${fmt(used)} / งบ ${fmt(lim)}<br>${over ? "เกินงบ " + fmt(used - lim) : "เหลือ " + fmt(lim - used)}`)}"><div class="nm">${esc(c.icon + " " + c.name)}</div><div class="tr"><div class="fl ${over ? "over" : ""}" style="width:${Math.min(100, Math.max(1, p))}%"></div></div><div class="v num">${over ? "⚠ เกิน " : ""}${p.toFixed(0)}%</div></div>`; }).join("")}</div>`;
+}
+
+/* ===================== TRANSACTIONS ===================== */
+function filteredTx(){
+  const f = UI.tf, q = f.q.trim().toLowerCase();
+  return D().tx.filter(t => (!f.month || ymOf(t.date) === f.month) && (!f.wallet || t.walletId === f.wallet || t.toWalletId === f.wallet) && (!f.type || t.type === f.type) && (!f.cat || t.catId === f.cat)
+    && (!q || (t.note || "").toLowerCase().includes(q) || (catAny(t.catId)?.name || "").toLowerCase().includes(q)))
+    .sort((a, b) => b.date.localeCompare(a.date) || (b.created || 0) - (a.created || 0));
+}
+function txRow(t){
+  let ico, t1, t2, amt;
+  const w = walletById(t.walletId);
+  if (t.type === "transfer") { const w2 = walletById(t.toWalletId); ico = "🔁"; t1 = `โอน ${w?.name || "?"} → ${w2?.name || "?"}`; t2 = t.note || ""; amt = `<span class="num">${fmt(t.amount)}</span>`; }
+  else { const c = catById(t.type, t.catId); ico = c?.icon || "•"; t1 = c?.name || "ไม่ระบุหมวด"; t2 = [w?.name, t.note].filter(Boolean).join(" · "); amt = t.type === "income" ? `<span class="pos num">+${fmt(t.amount)}</span>` : `<span class="neg num">−${fmt(t.amount)}</span>`; }
+  return `<div class="li" style="cursor:pointer" data-act="edittx" data-id="${t.id}"><div class="ico" style="background:var(${t.type === "income" ? "--mint-soft" : t.type === "expense" ? "--pink-soft" : "--sky-soft"})">${esc(ico)}</div><div class="mid"><div class="t1">${esc(t1)}</div><div class="t2">${esc(t2)}</div></div><div class="amt">${amt}</div></div>`;
+}
+function viewTx(){
+  const f = UI.tf, list = filteredTx();
+  const inc = list.filter(t => t.type === "income").reduce((a, t) => a + t.amount, 0), exp = list.filter(t => t.type === "expense").reduce((a, t) => a + t.amount, 0);
+  const months = [...new Set([ymOf(today()), ...D().tx.map(t => ymOf(t.date))])].sort().reverse();
+  const cats = [...D().cats.expense.map(c => ({...c, g:"รายจ่าย"})), ...D().cats.income.map(c => ({...c, g:"รายรับ"}))];
+  let html = "", lastD = "";
+  for (const t of list) {
+    if (t.date !== lastD) { lastD = t.date; const day = list.filter(x => x.date === t.date); const dn = day.reduce((a, x) => a + (x.type === "income" ? x.amount : x.type === "expense" ? -x.amount : 0), 0);
+      html += `<div class="day-h"><span>${dayLabel(t.date)}</span><span class="num">${dn >= 0 ? "+" : "−"}${fmt(Math.abs(dn))}</span></div>`; }
+    html += txRow(t);
+  }
+  return `<h1 class="pg">รายการรับ–จ่าย</h1><p class="sub">แตะรายการเพื่อแก้ไขหรือลบ</p>
+  <div class="filters">
+    <select data-f="month"><option value="">ทุกเดือน</option>${months.map(m => `<option value="${m}" ${f.month === m ? "selected" : ""}>${monthLabel(m)}</option>`).join("")}</select>
+    <select data-f="wallet"><option value="">ทุกกระเป๋า</option>${D().wallets.map(w => `<option value="${w.id}" ${f.wallet === w.id ? "selected" : ""}>${esc(w.icon + " " + w.name)}${w.archived ? " (เก็บถาวร)" : ""}</option>`).join("")}</select>
+    <select data-f="type"><option value="">ทุกประเภท</option><option value="income" ${f.type === "income" ? "selected" : ""}>รายรับ</option><option value="expense" ${f.type === "expense" ? "selected" : ""}>รายจ่าย</option><option value="transfer" ${f.type === "transfer" ? "selected" : ""}>โอนระหว่างกระเป๋า</option></select>
+    <select data-f="cat"><option value="">ทุกหมวด</option>${cats.map(c => `<option value="${c.id}" ${f.cat === c.id ? "selected" : ""}>${esc(c.g + ": " + c.name)}</option>`).join("")}</select>
+    <input type="text" data-f="q" placeholder="ค้นหาบันทึก/หมวด" value="${esc(f.q)}">
+  </div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:4px"><span class="note">${list.length} รายการ</span><span class="row" style="gap:14px"><span>รับ <b class="pos num">+${fmt(inc)}</b></span><span>จ่าย <b class="neg num">−${fmt(exp)}</b></span></span></div>
+    <div class="list">${html || `<div class="empty">ไม่มีรายการ — กดปุ่ม + เพื่อเพิ่ม</div>`}</div>
+  </div>
+  <div class="row" style="margin-top:12px"><button class="btn sm" data-act="csv">⬇ ส่งออก CSV (รายการที่กรอง)</button></div>`;
+}
+function txModal(id, preset){
+  const t = id ? D().tx.find(x => x.id === id) : null;
+  const st = {type: t?.type || preset?.type || "expense"};
+  const ws = activeWallets();
+  if (!ws.length) { toast("กรุณาสร้างกระเป๋าเงินก่อน"); UI.view = "wallets"; render(); return; }
+  const wOpts = sel => D().wallets.filter(w => !w.archived || w.id === sel).map(w => `<option value="${w.id}" ${w.id === sel ? "selected" : ""}>${esc(w.icon + " " + w.name)} (${fmt(walletBal(w.id))})</option>`).join("");
+  const draw = () => {
+    const type = st.type, cats = D().cats[type] || [];
+    const wSel = $("#mWallet")?.value || t?.walletId || preset?.walletId || ws[0].id;
+    const w2Sel = $("#mWallet2")?.value || t?.toWalletId || (ws.find(w => w.id !== wSel)?.id || "");
+    const keep = {amt: $("#mAmt")?.value ?? (t ? t.amount : ""), date: $("#mDate")?.value || t?.date || today(), note: $("#mNote")?.value ?? (t?.note || ""), cat: $("#mCat")?.value};
+    $(".modal").innerHTML = `
+      <h3>${t ? "แก้ไขรายการ" : "เพิ่มรายการ"}</h3>
+      <div class="seg"><button type="button" data-ty="expense" class="${type === "expense" ? "on exp" : ""}">รายจ่าย</button><button type="button" data-ty="income" class="${type === "income" ? "on inc" : ""}">รายรับ</button><button type="button" data-ty="transfer" class="${type === "transfer" ? "on" : ""}">โอนระหว่างกระเป๋า</button></div>
+      <label class="f"><span>จำนวนเงิน (บาท)</span><input type="number" id="mAmt" class="amt-in" inputmode="decimal" step="0.01" min="0" value="${esc(keep.amt)}" placeholder="0.00"></label>
+      <div class="grid2">
+        <label class="f"><span>${type === "transfer" ? "จากกระเป๋า" : "กระเป๋าเงิน"}</span><select id="mWallet">${wOpts(wSel)}</select></label>
+        ${type === "transfer" ? `<label class="f"><span>ไปยังกระเป๋า</span><select id="mWallet2">${wOpts(w2Sel)}</select></label>` :
+          `<label class="f"><span>หมวดหมู่</span><select id="mCat">${cats.map(c => `<option value="${c.id}" ${(keep.cat || t?.catId) === c.id ? "selected" : ""}>${esc(c.icon + " " + c.name)}</option>`).join("")}</select></label>`}
+      </div>
+      <label class="f"><span>วันที่</span><input type="date" id="mDate" value="${esc(keep.date)}"></label>
+      <label class="f"><span>บันทึกช่วยจำ</span><input type="text" id="mNote" maxlength="120" value="${esc(keep.note)}" placeholder="ไม่บังคับ"></label>
+      <div class="err" id="mErr"></div>
+      <div class="row" style="justify-content:space-between">${t ? `<button class="btn danger" id="mDel">ลบ</button>` : "<span></span>"}<div class="row"><button class="btn" id="mCancel">ยกเลิก</button><button class="btn pri" id="mSave">บันทึก</button></div></div>`;
+    $$(".modal .seg button").forEach(b => b.onclick = () => { st.type = b.dataset.ty; draw(); });
+    $("#mCancel").onclick = closeModal;
+    if (t) $("#mDel").onclick = ev => armConfirm(ev.currentTarget, () => { D().tx = D().tx.filter(x => x.id !== t.id); save(); closeModal(); render(); toast("ลบแล้ว"); }, "ยืนยันลบ");
+    $("#mSave").onclick = () => {
+      const amount = round2(parseFloat($("#mAmt").value)), er = $("#mErr");
+      if (!(amount > 0)) return er.textContent = "กรุณาใส่จำนวนเงินมากกว่า 0";
+      const date = $("#mDate").value; if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return er.textContent = "กรุณาเลือกวันที่";
+      const rec = {id: t?.id || uid(), type: st.type, amount, walletId: $("#mWallet").value, date, note: $("#mNote").value.trim(), created: t?.created || Date.now()};
+      if (st.type === "transfer") { rec.toWalletId = $("#mWallet2").value; if (rec.toWalletId === rec.walletId) return er.textContent = "กระเป๋าต้นทางและปลายทางต้องต่างกัน"; }
+      else rec.catId = $("#mCat").value;
+      if (t) Object.keys(t).forEach(k => delete t[k]), Object.assign(t, rec); else D().tx.push(rec);
+      save(); closeModal(); render(); toast(t ? "แก้ไขแล้ว" : "บันทึกแล้ว");
+    };
+    setTimeout(() => !t && $("#mAmt")?.focus(), 50);
+  };
+  openModal(""); draw();
+}
+
+/* ===================== WALLETS ===================== */
+function viewWallets(){
+  const ws = D().wallets.filter(w => UI.showArchived || !w.archived);
+  const tot = activeWallets().reduce((a, w) => a + walletBal(w.id), 0);
+  const byType = {}; activeWallets().forEach(w => byType[w.type] = (byType[w.type] || 0) + walletBal(w.id));
+  const hasArch = D().wallets.some(w => w.archived);
+  return `<h1 class="pg">กระเป๋าเงิน</h1><p class="sub">แยกเงินตามวัตถุประสงค์ · ยอดรวม <b class="num">${fmt(tot)}</b> บาท</p>
+  <div class="row" style="margin-bottom:14px"><button class="btn pri" data-act="addw">+ เพิ่มกระเป๋า</button><button class="btn" data-act="transfer">🔁 โอนระหว่างกระเป๋า</button>${hasArch ? `<button class="btn sm" data-act="toggleArch">${UI.showArchived ? "ซ่อน" : "แสดง"}กระเป๋าที่เก็บถาวร</button>` : ""}</div>
+  <div class="wgrid">${ws.map(w => { const b = walletBal(w.id); return `
+    <div class="wcard" style="background:${wColor(w.color)};${w.archived ? "opacity:.55" : ""}">
+      <div><div class="wn">${esc(w.icon)} ${esc(w.name)}</div><div class="wt">${WALLET_TYPES[w.type] || ""}${w.archived ? " · เก็บถาวร" : ""}</div></div>
+      <div><div class="wb num">${b < 0 ? "−" : ""}${fmt(Math.abs(b))}</div>
+      <div class="wact"><button data-act="wtx" data-id="${w.id}">+ รายการ</button><button data-act="wview" data-id="${w.id}">ดูรายการ</button><button data-act="editw" data-id="${w.id}">แก้ไข</button></div></div>
+    </div>`; }).join("")}</div>
+  <div class="section-gap"></div>
+  <div class="card"><h3>สัดส่วนเงินตามประเภทกระเป๋า</h3>${Object.keys(byType).length ? (() => { const mx = Math.max(1, ...Object.values(byType).map(Math.abs)); return Object.entries(byType).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
+    `<div class="hbar" data-tt="${esc(`<b>${WALLET_TYPES[k]}</b><br>${fmt(v)} บาท${tot > 0 ? `<br>${(v / tot * 100).toFixed(1)}% ของยอดรวม` : ""}`)}"><div class="nm">${WALLET_TYPES[k]}</div><div class="tr"><div class="fl" style="width:${Math.max(1, Math.abs(v) / mx * 100)}%;${v < 0 ? "background:var(--bad)" : ""}"></div></div><div class="v num">${fmt(v)}</div></div>`).join(""); })() : `<div class="empty">ยังไม่มีกระเป๋า</div>`}
+  <p class="note" style="margin:8px 0 0">เคล็ดลับ: ใช้กระเป๋าประเภท "เงินออม/ฉุกเฉิน" แล้ว <b>โอน</b> เงินเข้าทุกเดือน ระบบจะนับเป็นสินทรัพย์สภาพคล่องในการคำนวณเงินสำรองฉุกเฉิน</p></div>`;
+}
+function walletModal(id){
+  const w = id ? walletById(id) : null;
+  const st = {icon: w?.icon || WALLET_ICONS[0], color: w ? wColor(w.color) : WALLET_COLORS[D().wallets.length % WALLET_COLORS.length]};
+  const used = w ? D().tx.some(t => t.walletId === w.id || t.toWalletId === w.id) : false;
+  openModal(`<h3>${w ? "แก้ไขกระเป๋า" : "เพิ่มกระเป๋าเงิน"}</h3>
+    <label class="f"><span>ชื่อกระเป๋า</span><input type="text" id="wName" maxlength="40" value="${esc(w?.name || "")}" placeholder="เช่น บัญชีเงินเดือน, ทริปญี่ปุ่น"></label>
+    <div class="grid2"><label class="f"><span>ประเภท</span><select id="wType">${Object.entries(WALLET_TYPES).map(([k, v]) => `<option value="${k}" ${w?.type === k ? "selected" : ""}>${v}</option>`).join("")}</select></label>
+    <label class="f"><span>ยอดเงินตั้งต้น (บาท)</span><input type="number" id="wOpen" step="0.01" value="${w ? w.opening : 0}"></label></div>
+    <p class="note" style="margin:-6px 0 10px">บัตรเครดิต: ใส่ยอดค้างเป็นค่าติดลบ เช่น −5000</p>
+    <label class="f"><span>ไอคอน</span><div class="swatches" id="wIcons">${WALLET_ICONS.map(i => `<button type="button" data-i="${i}" class="${i === st.icon ? "on" : ""}" style="background:var(--surface-2);font-size:16px">${i}</button>`).join("")}</div></label>
+    <label class="f"><span>สี</span><div class="swatches" id="wColors">${WALLET_COLORS.map(c => `<button type="button" data-c="${c}" class="${c === st.color ? "on" : ""}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div></label>
+    <div class="err" id="wErr"></div>
+    <div class="row" style="justify-content:space-between">
+      ${w ? `<div class="row">${w.archived ? `<button class="btn" id="wUnarch">นำกลับมาใช้</button>` : `<button class="btn" id="wArch">เก็บถาวร</button>`}${!used ? `<button class="btn danger" id="wDel">ลบ</button>` : ""}</div>` : "<span></span>"}
+      <div class="row"><button class="btn" id="wCancel">ยกเลิก</button><button class="btn pri" id="wSave">บันทึก</button></div></div>`);
+  $("#wIcons").onclick = e => { const b = e.target.closest("button"); if (!b) return; st.icon = b.dataset.i; $$("#wIcons button").forEach(x => x.classList.toggle("on", x === b)); };
+  $("#wColors").onclick = e => { const b = e.target.closest("button"); if (!b) return; st.color = b.dataset.c; $$("#wColors button").forEach(x => x.classList.toggle("on", x === b)); };
+  $("#wCancel").onclick = closeModal;
+  $("#wSave").onclick = () => {
+    const name = $("#wName").value.trim(); if (!name) return $("#wErr").textContent = "กรุณาตั้งชื่อกระเป๋า";
+    const rec = {name, type: $("#wType").value, opening: round2(parseFloat($("#wOpen").value) || 0), icon: st.icon, color: st.color};
+    if (w) Object.assign(w, rec); else D().wallets.push({id: uid(), ...rec});
+    save(); closeModal(); render(); toast("บันทึกแล้ว");
+  };
+  if (w) {
+    if ($("#wArch")) $("#wArch").onclick = () => { w.archived = true; save(); closeModal(); render(); toast("เก็บถาวรแล้ว — ประวัติรายการยังอยู่ครบ"); };
+    if ($("#wUnarch")) $("#wUnarch").onclick = () => { delete w.archived; save(); closeModal(); render(); };
+    if ($("#wDel")) $("#wDel").onclick = ev => armConfirm(ev.currentTarget, () => { D().wallets = D().wallets.filter(x => x.id !== w.id); save(); closeModal(); render(); toast("ลบกระเป๋าแล้ว"); }, "ยืนยันลบ");
+  }
+}
+
+/* ===================== TIPS ===================== */
+function viewTips(){
+  const all = allTips(), fav = new Set(D().tips.fav), tip = tipOfDay(UI.tipOffset);
+  const cats = ["ทั้งหมด", "★ ที่บันทึกไว้", "🤖 จาก AI", ...TIP_CATS];
+  const list = all.filter(t => UI.tipCat === "ทั้งหมด" || (UI.tipCat === "★ ที่บันทึกไว้" ? fav.has(t.id) : UI.tipCat === "🤖 จาก AI" ? t.id.startsWith("a") : t.cat === UI.tipCat)).reverse();
+  return `<h1 class="pg">เกล็ดความรู้การเงินการลงทุน</h1><p class="sub">คลังความรู้ ${TIPS.length} เรื่อง + เกล็ดใหม่จาก AI ${D().tips.ai.length} เรื่อง + ของคุณเอง ${D().tips.custom.length} เรื่อง</p>
+  <div class="tip-hero" style="margin-bottom:14px"><div class="tag">💡 เกล็ดความรู้วันนี้ · ${esc(tip.cat)}</div><h2>${esc(tip.title)}</h2><p>${esc(tip.body)}</p>
+    <div class="row" style="margin-top:10px"><button class="btn sm" data-act="tipnext">เกล็ดถัดไป ›</button><button class="btn sm" data-act="fav" data-id="${tip.id}">${fav.has(tip.id) ? "★ บันทึกแล้ว" : "☆ บันทึก"}</button></div></div>
+  <div class="row" style="margin-bottom:14px"><button class="btn pri" data-act="aitips" id="aiBtn">🤖 ขอเกล็ดใหม่จาก AI</button><button class="btn" data-act="addtip">+ เพิ่มเกล็ดของฉัน</button></div>
+  <div class="chips">${cats.map(c => `<button data-act="tipcat" data-c="${esc(c)}" class="${UI.tipCat === c ? "on" : ""}">${esc(c)}</button>`).join("")}</div>
+  <div class="tipgrid">${list.map(t => `<div class="tipc"><span class="pill" style="align-self:flex-start">${esc(t.cat)}</span><h4>${esc(t.title)}</h4><p>${esc(t.body)}</p>
+    <div class="ft"><span class="note">${esc(t.src)}</span><span>${t.id.startsWith("b") ? "" : `<button class="btn sm" data-act="deltip" data-id="${t.id}" title="ลบ">ลบ</button>`}<button class="star ${fav.has(t.id) ? "on" : ""}" data-act="fav" data-id="${t.id}" title="บันทึก">${fav.has(t.id) ? "★" : "☆"}</button></span></div></div>`).join("") || `<div class="empty">ไม่มีเกล็ดความรู้ในหมวดนี้</div>`}</div>
+  <p class="note" style="margin-top:14px">ข้อมูลเพื่อการศึกษาเท่านั้น ไม่ใช่คำแนะนำการลงทุนเฉพาะบุคคล · เงื่อนไขภาษี/กฎหมายอาจเปลี่ยนแปลง ควรตรวจสอบกับหน่วยงานที่เกี่ยวข้องก่อนตัดสินใจ · เนื้อหาที่สร้างโดย AI อาจคลาดเคลื่อน</p>`;
+}
+function addTipModal(){
+  openModal(`<h3>เพิ่มเกล็ดความรู้ของฉัน</h3>
+    <label class="f"><span>หมวด</span><select id="tCat">${TIP_CATS.map(c => `<option>${c}</option>`).join("")}</select></label>
+    <label class="f"><span>หัวข้อ</span><input type="text" id="tTitle" maxlength="80"></label>
+    <label class="f"><span>รายละเอียด</span><textarea id="tBody" maxlength="600"></textarea></label>
+    <div class="err" id="tErr"></div><div class="row" style="justify-content:flex-end"><button class="btn" id="tC">ยกเลิก</button><button class="btn pri" id="tS">บันทึก</button></div>`);
+  $("#tC").onclick = closeModal;
+  $("#tS").onclick = () => { const title = $("#tTitle").value.trim(), body = $("#tBody").value.trim(); if (!title || !body) return $("#tErr").textContent = "กรุณากรอกหัวข้อและรายละเอียด";
+    D().tips.custom.push({id: "c" + uid(), cat: $("#tCat").value, title, body}); save(); closeModal(); render(); };
+}
+async function fetchAiTips(){
+  const sample = Caps.sample || await capUse("sample");
+  if (!sample) { openModal(`<h3>ใช้ได้เมื่อเปิดผ่านลิงก์ claude.ai</h3><p>ฟังก์ชันขอเกล็ดความรู้จาก AI ใช้ Claude ผ่านบัญชี claude.ai ของผู้ใช้ จึงทำงานเฉพาะเมื่อเปิดโปรแกรมจากลิงก์ที่เผยแพร่ และเข้าสู่ระบบ claude.ai อยู่</p><p class="note">ระหว่างนี้ใช้คลังความรู้ในตัว หรือเพิ่มเกล็ดของคุณเองได้</p><div class="row" style="justify-content:flex-end"><button class="btn pri" id="x1">ตกลง</button></div>`);
+    $("#x1").onclick = closeModal; return; }
+  const btn = $("#aiBtn"); if (btn) { btn.disabled = true; btn.textContent = "⏳ กำลังสร้างเกล็ดความรู้…"; }
+  const recent = allTips().slice(-40).map(t => t.title).join(" | ");
+  const prompt = `วันนี้คือ ${today()} คุณเป็นนักวางแผนการเงินในประเทศไทย เขียน "เกล็ดความรู้ด้านการเงินการลงทุน" ใหม่ 3 ข้อ เป็นภาษาไทย สำหรับคนทำงานทั่วไป
+ข้อกำหนด:
+- แต่ละข้อมีหัวข้อสั้น (ไม่เกิน 60 ตัวอักษร) และเนื้อหา 2–3 ประโยค ใช้งานได้จริง
+- เลือกจากหมวด: ${TIP_CATS.join(", ")} (คละหมวด) อย่างน้อย 1 ข้อให้เหมาะกับช่วงเวลาของปีนี้ (เช่น ช่วงปลายปีเรื่องวางแผนภาษี ช่วงโบนัส ช่วงต้นปีตั้งเป้าหมาย)
+- ห้ามซ้ำกับหัวข้อเหล่านี้: ${recent}
+- ห้ามแต่งตัวเลข อัตรา หรือกฎหมายที่ไม่แน่ใจ หากกล่าวถึงเงื่อนไขภาษี/กฎหมาย/อัตราดอกเบี้ย ให้ระบุว่า "ควรตรวจสอบเงื่อนไขล่าสุด"
+- ห้ามแนะนำหลักทรัพย์รายตัว
+ตอบกลับเป็น JSON array เท่านั้น: [{"cat":"...","title":"...","body":"..."}]`;
+  try {
+    const res = await sample.json(prompt, {modelTier: "default"});
+    const arr = (Array.isArray(res) ? res : (res?.tips || [])).filter(x => x && x.title && x.body).slice(0, 5);
+    if (!arr.length) throw new Error("ไม่ได้รับเกล็ดความรู้");
+    arr.forEach(x => D().tips.ai.push({id: "a" + uid(), cat: TIP_CATS.includes(x.cat) ? x.cat : "วางแผน", title: String(x.title).slice(0, 100), body: String(x.body).slice(0, 800), date: today()}));
+    save(); UI.tipCat = "🤖 จาก AI"; render(); toast(`ได้เกล็ดความรู้ใหม่ ${arr.length} เรื่อง`);
+  } catch (e) { toast(e?.code === "not_granted" ? "ไม่ได้รับอนุญาตให้ใช้ Claude ในหน้านี้" : e?.code === "rate_limited" ? "ใช้งานถี่เกินไป กรุณารอสักครู่" : "ขอเกล็ดจาก AI ไม่สำเร็จ: " + (e?.message || e), 5000); if (btn) { btn.disabled = false; btn.textContent = "🤖 ขอเกล็ดใหม่จาก AI"; } }
+}
+
+/* ===================== HEALTH & QUIZ ===================== */
+function viewHealth(){
+  const tabs = `<div class="seg" style="max-width:520px"><button data-act="htab" data-t="assess" class="${UI.htab === "assess" ? "on" : ""}">🩺 ประเมินสุขภาพการเงิน</button><button data-act="htab" data-t="quiz" class="${UI.htab === "quiz" ? "on" : ""}">🎓 ทดสอบความรู้</button><button data-act="htab" data-t="hist" class="${UI.htab === "hist" ? "on" : ""}">📜 ประวัติ</button></div>`;
+  let body = "";
+  if (UI.htab === "assess") {
+    const s = monthStats(ymOf(today())), lq = liquidity(), net = activeWallets().reduce((a, w) => a + walletBal(w.id), 0);
+    body = `<div class="dash"><div class="card"><h3>แบบประเมิน ${HEALTH_Q.length} ข้อ</h3><p class="note" style="margin-top:-4px">เลือกคำตอบที่ตรงกับคุณมากที่สุด (ใช้เวลาประมาณ 3 นาที)</p><form id="hForm">
+      ${HEALTH_Q.map((q, i) => `<div class="q"><div class="qt">${i + 1}. ${esc(q[1])} <span class="pill">${HEALTH_DIMS[q[0]]}</span></div>${q[2].map((o, k) => `<label class="opt"><input type="radio" name="h${i}" value="${k}"><span>${esc(o)}</span></label>`).join("")}</div>`).join("")}
+      <div class="err" id="hErr"></div><button class="btn pri" type="submit">ดูผลประเมิน</button></form></div>
+      <div class="cards" style="align-content:start"><div class="card"><h3>ตัวชี้วัดจากข้อมูลที่คุณบันทึก</h3>${ratioList(s, lq, net)}</div><div id="hResult"></div></div></div>`;
+  } else if (UI.htab === "quiz") {
+    body = quizHtml();
+  } else {
+    const h = D().health.slice().reverse(), q = D().quiz.slice().reverse();
+    body = `<div class="dash"><div class="card"><h3>ผลประเมินสุขภาพการเงิน</h3>${h.length ? `<table class="t"><thead><tr><th>วันที่</th><th class="r">คะแนน</th><th>ระดับ</th></tr></thead><tbody>${h.map(r => `<tr><td>${dayLabel(r.date)}</td><td class="r num">${r.score}</td><td>${statusChip(levelOf(r.score).lv, levelOf(r.score).name)}</td></tr>`).join("")}</tbody></table>` : `<div class="empty">ยังไม่เคยทำแบบประเมิน</div>`}</div>
+      <div class="card"><h3>ผลทดสอบความรู้</h3>${q.length ? `<table class="t"><thead><tr><th>วันที่</th><th class="r">คะแนน</th></tr></thead><tbody>${q.map(r => `<tr><td>${dayLabel(r.date)}</td><td class="r num">${r.score}/${r.total}</td></tr>`).join("")}</tbody></table>` : `<div class="empty">ยังไม่เคยทำแบบทดสอบ</div>`}</div></div>`;
+  }
+  return `<h1 class="pg">ประเมินและทดสอบ</h1><p class="sub">ตรวจสุขภาพการเงินเป็นประจำทุก 3–6 เดือน เพื่อติดตามความก้าวหน้า</p>${tabs}${body}`;
+}
+function levelOf(score){ return score >= 80 ? {lv:"good", name:"แข็งแรงมาก"} : score >= 60 ? {lv:"good", name:"ดี"} : score >= 40 ? {lv:"warn", name:"พอใช้ ควรปรับปรุง"} : {lv:"bad", name:"ต้องฟื้นฟูเร่งด่วน"}; }
+function submitHealth(form){
+  const ans = HEALTH_Q.map((_, i) => { const r = form.querySelector(`input[name=h${i}]:checked`); return r ? Number(r.value) : null; });
+  const miss = ans.findIndex(a => a === null);
+  if (miss >= 0) { $("#hErr").textContent = `กรุณาตอบข้อ ${miss + 1}`; form.querySelectorAll(".q")[miss].scrollIntoView({behavior: "smooth", block: "center"}); return; }
+  $("#hErr").textContent = "";
+  const dims = {}; HEALTH_Q.forEach((q, i) => { dims[q[0]] = dims[q[0]] || {got: 0, max: 0}; dims[q[0]].got += ans[i]; dims[q[0]].max += 3; });
+  const got = ans.reduce((a, b) => a + b, 0), score = Math.round(got / (HEALTH_Q.length * 3) * 100), lvl = levelOf(score);
+  const dimPct = Object.fromEntries(Object.entries(dims).map(([k, v]) => [k, Math.round(v.got / v.max * 100)]));
+  D().health.push({date: today(), score, dims: dimPct, ans}); save();
+  const weak = Object.entries(dimPct).filter(([, p]) => p < 67).sort((a, b) => a[1] - b[1]);
+  const C = 2 * Math.PI * 42;
+  $("#hResult").innerHTML = `<div class="card"><h3>ผลการประเมิน</h3>
+    <div class="score-ring"><svg width="110" height="110" viewBox="0 0 110 110" role="img" aria-label="คะแนน ${score}"><circle cx="55" cy="55" r="42" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="55" cy="55" r="42" fill="none" stroke="var(--brand)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C * score / 100} ${C}" transform="rotate(-90 55 55)"/><text x="55" y="61" text-anchor="middle" font-size="24" font-weight="700" fill="var(--text)">${score}</text></svg>
+      <div><div class="note">คะแนนรวม (เต็ม 100)</div>${statusChip(lvl.lv, lvl.name)}<div class="note" style="margin-top:6px">${got}/${HEALTH_Q.length * 3} คะแนนดิบ</div></div></div>
+    <div style="margin-top:12px">${Object.entries(dimPct).map(([k, p]) => `<div class="hbar" data-tt="${esc(`<b>${HEALTH_DIMS[k]}</b><br>${p}%`)}"><div class="nm">${HEALTH_DIMS[k]}</div><div class="tr"><div class="fl" style="width:${Math.max(1, p)}%"></div></div><div class="v num">${p}%</div></div>`).join("")}</div>
+    <h3 style="margin-top:14px">สิ่งที่ควรทำต่อ</h3>
+    ${weak.length ? weak.map(([k]) => `<p style="margin:0 0 8px"><b>${HEALTH_DIMS[k]}:</b> ${esc(HEALTH_ADVICE[k])}</p>`).join("") : `<p>ยอดเยี่ยม! ทุกด้านอยู่ในเกณฑ์ดี รักษาวินัยและทบทวนแผนทุก 6 เดือน</p>`}
+    <p class="note">ผลประเมินเป็นแนวทางเบื้องต้น ไม่ใช่คำแนะนำทางการเงินเฉพาะบุคคล</p></div>`;
+  $("#hResult").scrollIntoView({behavior: "smooth", block: "start"});
+}
+function quizHtml(){
+  const z = UI.quiz;
+  if (!z) return `<div class="card" style="max-width:640px"><h3>แบบทดสอบความรู้ทางการเงิน</h3><p>สุ่ม 8 ข้อจากคลัง ${QUIZ.length} ข้อ ครอบคลุมการออม หนี้ การลงทุน ภาษี และภัยการเงิน</p><button class="btn pri" data-act="quizstart">เริ่มทำแบบทดสอบ</button></div>`;
+  return `<div class="card" style="max-width:760px"><form id="qForm">
+    ${z.items.map((qi, n) => { const q = QUIZ[qi], a = z.ans?.[n];
+      return `<div class="q"><div class="qt">${n + 1}. ${esc(q[0])}</div>${q[1].map((o, k) => { const cls = z.done ? (k === q[2] ? "right" : (a === k ? "wrong" : "")) : "";
+        return `<label class="opt ${cls}"><input type="radio" name="q${n}" value="${k}" ${a === k ? "checked" : ""} ${z.done ? "disabled" : ""}><span>${esc(o)}</span></label>`; }).join("")}
+        ${z.done ? `<p class="note" style="margin:4px 0 0">${a === q[2] ? "✓ ถูกต้อง" : "✕ ยังไม่ถูก"} — ${esc(q[3])}</p>` : ""}</div>`; }).join("")}
+    <div class="err" id="qErr"></div>
+    ${z.done ? `<div class="row" style="justify-content:space-between"><b style="font-size:18px">คะแนน ${z.score}/${z.items.length}</b><button class="btn pri" type="button" data-act="quizstart">ทำชุดใหม่</button></div>` : `<button class="btn pri" type="submit">ส่งคำตอบ</button>`}
+  </form></div>`;
+}
+function startQuiz(){ const idx = QUIZ.map((_, i) => i); for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; } UI.quiz = {items: idx.slice(0, 8), ans: null, done: false}; render(); }
+function submitQuiz(form){
+  const z = UI.quiz, ans = z.items.map((_, n) => { const r = form.querySelector(`input[name=q${n}]:checked`); return r ? Number(r.value) : null; });
+  const miss = ans.findIndex(a => a === null); if (miss >= 0) return $("#qErr").textContent = `กรุณาตอบข้อ ${miss + 1}`;
+  z.ans = ans; z.done = true; z.score = z.items.reduce((s, qi, n) => s + (ans[n] === QUIZ[qi][2] ? 1 : 0), 0);
+  D().quiz.push({date: today(), score: z.score, total: z.items.length}); save(); render();
+}
+
+/* ===================== SETTINGS ===================== */
+function viewSettings(){
+  const st = D().settings, b = D().budgets;
+  const catRows = type => (D().cats[type] || []).map(c => { const used = D().tx.some(t => t.catId === c.id);
+    return `<tr><td>${esc(c.icon)} ${esc(c.name)}${c.kind === "debt" ? ' <span class="pill">นับเป็นภาระหนี้</span>' : c.kind === "save" ? ' <span class="pill">นับเป็นการออม</span>' : ""}</td>
+    ${type === "expense" ? `<td class="r"><input type="number" min="0" step="100" data-budget="${c.id}" value="${b[c.id] || ""}" placeholder="—" style="max-width:120px;padding:5px 8px;text-align:right"></td>` : ""}
+    <td class="r" style="white-space:nowrap"><button class="btn sm" data-act="rencat" data-t="${type}" data-id="${c.id}">แก้ชื่อ</button>${used ? "" : ` <button class="btn sm danger" data-act="delcat" data-t="${type}" data-id="${c.id}">ลบ</button>`}</td></tr>`; }).join("");
+  return `<h1 class="pg">ตั้งค่า</h1><p class="sub">บัญชี: <b>${esc(S.user)}</b></p>
+  <div class="dash">
+  <div class="cards">
+    <div class="card"><h3>หมวดรายจ่าย & งบประมาณต่อเดือน</h3><table class="t"><thead><tr><th>หมวด</th><th class="r">งบ/เดือน (บาท)</th><th></th></tr></thead><tbody>${catRows("expense")}</tbody></table>
+      <div class="row" style="margin-top:10px"><button class="btn sm" data-act="addcat" data-t="expense">+ เพิ่มหมวดรายจ่าย</button><span class="note">งบจะบันทึกอัตโนมัติเมื่อแก้ตัวเลข</span></div></div>
+    <div class="card"><h3>หมวดรายรับ</h3><table class="t"><tbody>${catRows("income")}</tbody></table><div class="row" style="margin-top:10px"><button class="btn sm" data-act="addcat" data-t="income">+ เพิ่มหมวดรายรับ</button></div></div>
+  </div>
+  <div class="cards" style="align-content:start">
+    ${accentCard()}
+    <div class="card"><h3>ทั่วไป</h3>
+      <label class="f"><span>ชื่อที่แสดง</span><input type="text" id="sName" maxlength="40" value="${esc(D().profile.display)}"></label>
+      <div class="grid2"><label class="f"><span>ธีม</span><select id="sTheme"><option value="auto" ${st.theme === "auto" ? "selected" : ""}>ตามระบบ</option><option value="light" ${st.theme === "light" ? "selected" : ""}>สว่าง</option><option value="dark" ${st.theme === "dark" ? "selected" : ""}>มืด</option></select></label>
+      <label class="f"><span>ล็อกอัตโนมัติเมื่อไม่ใช้งาน</span><select id="sLock">${[[0,"ไม่ล็อก"],[5,"5 นาที"],[10,"10 นาที"],[15,"15 นาที"],[30,"30 นาที"]].map(([v, t]) => `<option value="${v}" ${Number(st.lockMin) === v ? "selected" : ""}>${t}</option>`).join("")}</select></label></div>
+      <button class="btn pri" data-act="savegen">บันทึก</button></div>
+    <div class="card"><h3>🔒 ความปลอดภัยและข้อมูล</h3>
+      <div class="row"><button class="btn" data-act="chpass">เปลี่ยนรหัสผ่าน</button><button class="btn" data-act="backup">⬇ สำรองข้อมูล (เข้ารหัส)</button><button class="btn" data-act="csvall">⬇ ส่งออก CSV ทั้งหมด</button></div>
+      <p class="note">${Cloud.ready ? "☁ ข้อมูลเข้ารหัสแล้วเก็บไว้ในเครื่องนี้ และซิงก์ไปยังพื้นที่ส่วนตัวในบัญชี claude.ai ของคุณ (เปิดลิงก์เดียวกันจากเครื่องอื่นแล้วเข้าสู่ระบบได้) — ไม่มีใครเห็นข้อมูลนี้ รวมถึงเจ้าของลิงก์" : "ข้อมูลเข้ารหัสแล้วเก็บในเบราว์เซอร์ของเครื่องนี้เท่านั้น · การล้างข้อมูลเบราว์เซอร์จะทำให้ข้อมูลหาย"} · ควรสำรองข้อมูลเป็นประจำ (เช่น เดือนละครั้ง) · ไฟล์ CSV <b>ไม่ได้เข้ารหัส</b> ควรเก็บอย่างระมัดระวัง</p>
+      <button class="btn danger" data-act="delacc">ลบบัญชีนี้ถาวร</button></div>
+  </div></div>`;
+}
+const ACCENT_SHORT = {sun:"อาทิตย์",mon:"จันทร์",tue:"อังคาร",wed:"พุธ กลางวัน",wedn:"พุธ กลางคืน",thu:"พฤหัสบดี",fri:"ศุกร์",sat:"เสาร์"};
+function accentCard(){
+  const cur = D().settings.accent || "sat", a = ACCENTS[cur];
+  return `<div class="card"><h3>🎨 สีธีมตามวันเกิด</h3>
+    <label class="f"><span>เลือกวันเกิดของคุณ เพื่อใช้สีประจำวันเกิด</span><input type="date" id="sBirth" max="${today()}"></label>
+    ${UI.birthMsg ? `<div class="birth-res">${UI.birthMsg}</div>` : `<div class="birth-res">ธีมปัจจุบัน: <b>วัน${esc(a[0])}</b> · ${esc(a[1])}</div>`}
+    <label class="f" style="margin-bottom:6px"><span>หรือเลือกสีเอง</span></label>
+    <div class="accents">${ACCENT_ORDER.map(k => `<button type="button" data-act="accent" data-k="${k}" class="${cur === k ? "on" : ""}" aria-label="วัน${esc(ACCENTS[k][0])} ${esc(ACCENTS[k][1])}"><i style="background:${ACCENTS[k][2].hero}"></i>${ACCENT_SHORT[k]}</button>`).join("")}</div>
+    <p class="note" style="margin:10px 0 0">ใช้วันเกิดเพื่อหาวันในสัปดาห์เท่านั้น ระบบบันทึกเฉพาะสีที่เลือก ไม่เก็บวันเกิดของคุณ · สีอ้างอิงตามความเชื่อสีประจำวันเกิดของไทย</p></div>`;
+}
+function birthToAccent(v){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ""); if (!m) return null;
+  let y = +m[1]; if (y > 2400) y -= 543;
+  const d = new Date(y, +m[2] - 1, +m[3]); if (isNaN(d)) return null;
+  return {key: WEEKDAY_KEY[d.getDay()], date: d};
+}
+function catModal(type, id){
+  const c = id ? catById(type, id) : null;
+  openModal(`<h3>${c ? "แก้ไขหมวด" : "เพิ่มหมวด" + (type === "income" ? "รายรับ" : "รายจ่าย")}</h3>
+    <div class="grid2" style="grid-template-columns:90px 1fr"><label class="f"><span>ไอคอน</span><input type="text" id="cIcon" maxlength="4" value="${esc(c?.icon || "🏷️")}"></label><label class="f"><span>ชื่อหมวด</span><input type="text" id="cName" maxlength="40" value="${esc(c?.name || "")}"></label></div>
+    ${type === "expense" ? `<label class="f"><span>การนับในตัวชี้วัด</span><select id="cKind"><option value="">รายจ่ายทั่วไป</option><option value="debt" ${c?.kind === "debt" ? "selected" : ""}>ภาระหนี้ (ใช้คำนวณภาระหนี้ต่อรายได้)</option><option value="save" ${c?.kind === "save" ? "selected" : ""}>การออม/ลงทุน (นับเป็นเงินออม)</option></select></label>` : ""}
+    <div class="err" id="cErr"></div><div class="row" style="justify-content:flex-end"><button class="btn" id="cC">ยกเลิก</button><button class="btn pri" id="cS">บันทึก</button></div>`);
+  $("#cC").onclick = closeModal;
+  $("#cS").onclick = () => { const name = $("#cName").value.trim(); if (!name) return $("#cErr").textContent = "กรุณาใส่ชื่อหมวด";
+    const rec = {name, icon: $("#cIcon").value.trim() || "🏷️"}; if (type === "expense") rec.kind = $("#cKind").value || null;
+    if (c) Object.assign(c, rec); else D().cats[type].push({id: "u" + uid(), ...rec}); save(); closeModal(); render(); };
+}
+function passModal(){
+  openModal(`<h3>เปลี่ยนรหัสผ่าน</h3>
+    <label class="f"><span>รหัสผ่านปัจจุบัน</span><input type="password" id="p0" autocomplete="current-password"></label>
+    <label class="f"><span>รหัสผ่านใหม่ (≥ 8 ตัว มีตัวอักษรและตัวเลข)</span><input type="password" id="p1" autocomplete="new-password"></label>
+    <label class="f"><span>ยืนยันรหัสผ่านใหม่</span><input type="password" id="p2" autocomplete="new-password"></label>
+    <div class="err" id="pErr"></div><div class="row" style="justify-content:flex-end"><button class="btn" id="pC">ยกเลิก</button><button class="btn pri" id="pS">เปลี่ยนรหัสผ่าน</button></div>`);
+  $("#pC").onclick = closeModal;
+  $("#pS").onclick = async () => {
+    const er = $("#pErr"), p0 = $("#p0").value, p1 = $("#p1").value;
+    if (p1.length < 8 || !/[A-Za-z]/.test(p1) || !/[0-9]/.test(p1)) return er.textContent = "รหัสผ่านใหม่ต้องยาว ≥ 8 ตัว และมีทั้งตัวอักษรและตัวเลข";
+    if (p1 !== $("#p2").value) return er.textContent = "รหัสผ่านใหม่ไม่ตรงกัน";
+    $("#pS").disabled = true;
+    try {
+      await saveNow(); const rec = getAcct(S.user);
+      const k0 = await deriveKey(p0, rec.salt, rec.iter);
+      try { await decryptObj(k0, rec); } catch (e) { throw new Error("รหัสผ่านปัจจุบันไม่ถูกต้อง"); }
+      const salt = newSalt(), k1 = await deriveKey(p1, salt, PBKDF2_ITER);
+      Object.assign(S, {key: k1, salt, iter: PBKDF2_ITER}); await saveNow();
+      closeModal(); toast("เปลี่ยนรหัสผ่านแล้ว — ไฟล์สำรองเดิมยังใช้รหัสผ่านเก่า แนะนำให้สำรองใหม่", 4500);
+    } catch (e) { er.textContent = e.message; $("#pS").disabled = false; }
+  };
+}
+async function backup(){
+  await saveNow(); const meta = getAcct(S.user), blob = meta;
+  const ok = await saveFile(`backup_${S.user}_${today()}.json`, JSON.stringify({app: "fw-backup", v: 1, user: S.user, created: meta.created, salt: meta.salt, iter: meta.iter, iv: blob.iv, ct: blob.ct, exported: new Date().toISOString()}));
+  if (ok) toast("บันทึกไฟล์สำรองแล้ว (เปิดได้ด้วยรหัสผ่านปัจจุบันเท่านั้น)", 3500);
+}
+function exportCsv(list){
+  const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const typeTh = {income: "รายรับ", expense: "รายจ่าย", transfer: "โอน"};
+  const rows = [["วันที่", "ประเภท", "หมวด", "กระเป๋า", "ไปยังกระเป๋า", "จำนวนเงิน", "บันทึก"]].concat(list.slice().sort((a, b) => a.date.localeCompare(b.date)).map(t =>
+    [t.date, typeTh[t.type], t.type === "transfer" ? "" : (catById(t.type, t.catId)?.name || ""), walletById(t.walletId)?.name || "", t.type === "transfer" ? (walletById(t.toWalletId)?.name || "") : "", t.amount.toFixed(2), t.note || ""]));
+  saveFile(`transactions_${S.user}_${today()}.csv`, "﻿" + rows.map(r => r.map(q).join(",")).join("\r\n"), "text/csv;charset=utf-8");
+}
+
+/* ===================== GLOBAL EVENT DELEGATION ===================== */
+$("#view").addEventListener("click", e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const a = el.dataset.act, id = el.dataset.id;
+  switch (a) {
+    case "mprev": UI.month = addMonth(UI.month, -1); render(); break;
+    case "mnext": UI.month = addMonth(UI.month, 1); render(); break;
+    case "mnow": UI.month = ymOf(today()); render(); break;
+    case "go": UI.view = el.dataset.v; render(); window.scrollTo(0, 0); break;
+    case "tipnext": UI.tipOffset++; render(); break;
+    case "edittx": txModal(id); break;
+    case "csv": exportCsv(filteredTx()); break;
+    case "csvall": exportCsv(D().tx); break;
+    case "addw": walletModal(); break;
+    case "editw": walletModal(id); break;
+    case "wtx": txModal(null, {walletId: id}); break;
+    case "wview": UI.tf = {month: "", wallet: id, type: "", cat: "", q: ""}; UI.view = "tx"; render(); window.scrollTo(0, 0); break;
+    case "transfer": txModal(null, {type: "transfer"}); break;
+    case "toggleArch": UI.showArchived = !UI.showArchived; render(); break;
+    case "tipcat": UI.tipCat = el.dataset.c; render(); break;
+    case "fav": { const f = D().tips.fav, i = f.indexOf(id); i >= 0 ? f.splice(i, 1) : f.push(id); save(); render(); break; }
+    case "deltip": armConfirm(el, () => { D().tips.custom = D().tips.custom.filter(t => t.id !== id); D().tips.ai = D().tips.ai.filter(t => t.id !== id); D().tips.fav = D().tips.fav.filter(x => x !== id); save(); render(); }, "ยืนยัน"); break;
+    case "addtip": addTipModal(); break;
+    case "aitips": fetchAiTips(); break;
+    case "htab": UI.htab = el.dataset.t; render(); break;
+    case "quizstart": startQuiz(); break;
+    case "addcat": catModal(el.dataset.t); break;
+    case "rencat": catModal(el.dataset.t, id); break;
+    case "delcat": armConfirm(el, () => { D().cats[el.dataset.t] = D().cats[el.dataset.t].filter(c => c.id !== id); delete D().budgets[id]; save(); render(); }, "ยืนยัน"); break;
+    case "accent": D().settings.accent = el.dataset.k; applyAccent(el.dataset.k); UI.birthMsg = ""; save(); render(); toast(`ใช้ธีมวัน${ACCENTS[el.dataset.k][0]} · ${ACCENTS[el.dataset.k][1]}`); break;
+    case "savegen": D().profile.display = $("#sName").value.trim(); D().settings.theme = $("#sTheme").value; D().settings.lockMin = Number($("#sLock").value);
+      applyTheme(D().settings.theme); setWho(); save(); bumpIdle(); toast("บันทึกแล้ว"); break;
+    case "chpass": passModal(); break;
+    case "backup": backup(); break;
+    case "delacc": askModal({title: "ลบบัญชีถาวร", body: `ข้อมูลทั้งหมดของบัญชีนี้จะถูกลบและกู้คืนไม่ได้ (ยกเว้นมีไฟล์สำรอง) พิมพ์ชื่อผู้ใช้ <b>${esc(S.user)}</b> เพื่อยืนยัน`, ok: "ลบบัญชี", danger: true, input: "ชื่อผู้ใช้"}).then(async v => { if (v === null) return; if (v.trim().toLowerCase() !== S.user) return toast("ชื่อผู้ใช้ไม่ตรง ยังไม่ได้ลบ"); const u = S.user; clearTimeout(saveTimer); S = null; await saving; delAcct(u); lock("ลบบัญชีแล้ว"); }); break;
+  }
+});
+$("#view").addEventListener("change", e => {
+  const f = e.target.dataset.f; if (f && f !== "q") { UI.tf[f] = e.target.value; render(); return; }
+  if (e.target.id === "sBirth") { const r = birthToAccent(e.target.value); if (!r) return;
+    const a = ACCENTS[r.key], dateTxt = r.date.toLocaleDateString("th-TH", {day: "numeric", month: "long", year: "numeric"});
+    D().settings.accent = r.key; applyAccent(r.key); save();
+    UI.birthMsg = `${esc(dateTxt)} ตรงกับ<b>วัน${esc(a[0].replace(/ \(.*\)/, ""))}</b> · สีประจำวันเกิดคือ<b>${esc(a[1])}</b> — เปลี่ยนธีมให้แล้ว${r.key === "wed" ? "<br><small>ถ้าเกิดหลัง 18:00 น. ตามความเชื่อนับเป็นพุธกลางคืน (สีเทา) กดเลือก “พุธ กลางคืน” ด้านล่าง</small>" : ""}`;
+    render(); return; }
+  const bid = e.target.dataset.budget; if (bid) { const v = round2(parseFloat(e.target.value)); if (v > 0) D().budgets[bid] = v; else delete D().budgets[bid]; save(); toast("บันทึกงบแล้ว", 1200); }
+});
+$("#view").addEventListener("input", e => { if (e.target.dataset.f === "q") { UI.tf.q = e.target.value; const pos = e.target.selectionStart; render(); const inp = $('[data-f="q"]'); inp.focus(); inp.setSelectionRange(pos, pos); } });
+$("#view").addEventListener("submit", e => { e.preventDefault(); if (e.target.id === "hForm") submitHealth(e.target); if (e.target.id === "qForm") submitQuiz(e.target); });
+
+/* tooltip */
+const TT = $("#tt");
+function showTT(el, x, y){ TT.innerHTML = el.dataset.tt; TT.classList.remove("hidden"); const r = TT.getBoundingClientRect(); let nx = x + 14, ny = y + 14; if (nx + r.width > innerWidth - 8) nx = x - r.width - 14; if (ny + r.height > innerHeight - 8) ny = y - r.height - 14; TT.style.left = Math.max(8, nx) + "px"; TT.style.top = Math.max(8, ny) + "px"; }
+document.addEventListener("mousemove", e => { const el = e.target.closest?.("[data-tt]"); if (el) showTT(el, e.clientX, e.clientY); else TT.classList.add("hidden"); });
+document.addEventListener("touchstart", e => { const el = e.target.closest?.("[data-tt]"); if (el) { const t = e.touches[0]; showTT(el, t.clientX, t.clientY); setTimeout(() => TT.classList.add("hidden"), 2500); } else TT.classList.add("hidden"); }, {passive: true});
+
+/* modal */
+function openModal(html){ $("#modalRoot").innerHTML = `<div class="modal-bg"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`; $(".modal-bg").addEventListener("mousedown", e => { if (e.target.classList.contains("modal-bg")) closeModal(); }); }
+function closeModal(){ $("#modalRoot").innerHTML = ""; }
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+/* boot */
+(function boot(){
+  if (!Store.ok) $("#storeBanner").classList.remove("hidden");
+  if (!window.crypto?.subtle) { $("#lErr").textContent = "เบราว์เซอร์นี้ไม่รองรับการเข้ารหัส กรุณาใช้ Chrome, Edge, Firefox หรือ Safari เวอร์ชันล่าสุด"; $("#lBtn").disabled = true; $("#rBtn").disabled = true; }
+  const pick = () => { if (S) return; const users = listUsers(); if (!users.length) authTab(true); else { if ($("#fReg").classList.contains("hidden") || !$("#rUser").value) authTab(false); if (users.length === 1 && !$("#lUser").value) $("#lUser").value = users[0]; } };
+  pick();
+  Cloud.init().then(async ok => { if (!ok) return; await syncAll(); $("#cloudNote").classList.remove("hidden"); pick(); });
+  capUse("downloads").then(d => Caps.downloads = d); capUse("sample").then(x => Caps.sample = x);
+})();
+</script>
+</body>
+</html>
